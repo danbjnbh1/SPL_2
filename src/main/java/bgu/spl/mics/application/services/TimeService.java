@@ -41,7 +41,7 @@ public class TimeService extends MicroService {
                 e.printStackTrace();
             }
 
-            this.messageBus.sendBroadcast(new TickBroadcast());
+            this.messageBus.sendBroadcast(new TickBroadcast(currentTick, tickTime));
             currentTick++;
         }
         terminate();
