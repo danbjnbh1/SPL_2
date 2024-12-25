@@ -6,12 +6,14 @@ import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.GPSIMU;
 
 /**
- * PoseService is responsible for maintaining the robot's current pose (position and orientation)
+ * PoseService is responsible for maintaining the robot's current pose (position
+ * and orientation)
  * and broadcasting PoseEvents at every tick.
  */
 public class PoseService extends MicroService {
 
     GPSIMU gpsimu;
+
     /**
      * Constructor for PoseService.
      *
@@ -25,14 +27,14 @@ public class PoseService extends MicroService {
 
     /**
      * Initializes the PoseService.
-     * Subscribes to TickBroadcast and sends PoseEvents at every tick based on the current pose.
+     * Subscribes to TickBroadcast and sends PoseEvents at every tick based on the
+     * current pose.
      */
     @Override
     protected void initialize() {
-        this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) ->{
+        this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
             gpsimu.setCurrentTime(e.getTime());
             messageBus.sendEvent(new PoseEvent(gpsimu.getPose()));
         });
-        };
-    }
-
+    };
+}
