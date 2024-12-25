@@ -3,7 +3,9 @@ package bgu.spl.mics.application.services;
 import java.util.List;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
+import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.DetectedObject;
@@ -45,11 +47,11 @@ public class CameraService extends MicroService {
             }
         });
 
-        this.subscribeBroadcast(TerminatedBroadcast, (TerminatedBroadcast e) -> {
+        this.subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast e) -> {
             terminate(); // ! Implement error handling
         });
 
-        this.subscribeBroadcast(CrashedBroadcast, (CrashedBroadcast e) -> {
+        this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast e) -> {
             terminate(); // ! Implement error handling
         });
     }

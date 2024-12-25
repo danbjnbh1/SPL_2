@@ -1,6 +1,9 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.PoseEvent;
+import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.objects.GPSIMU;
 
 /**
  * PoseService is responsible for maintaining the robot's current pose (position and orientation)
@@ -8,14 +11,16 @@ import bgu.spl.mics.MicroService;
  */
 public class PoseService extends MicroService {
 
+    GPSIMU gpsimu;
     /**
      * Constructor for PoseService.
      *
      * @param gpsimu The GPSIMU object that provides the robot's pose data.
      */
     public PoseService(GPSIMU gpsimu) {
-        super("Change_This_Name");
-        // TODO Implement this
+        super("PoseService");
+        this.gpsimu = gpsimu;
+
     }
 
     /**
@@ -24,6 +29,10 @@ public class PoseService extends MicroService {
      */
     @Override
     protected void initialize() {
-        // TODO Implement this
+        this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) ->{
+            gpsimu.setCurrentTime(e.getTime());
+            messageBus.sendEvent(new PoseEvent(gpsimu.getPose()));
+        });
+        };
     }
-}
+
