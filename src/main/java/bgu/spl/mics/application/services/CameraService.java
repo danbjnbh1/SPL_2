@@ -3,6 +3,7 @@ package bgu.spl.mics.application.services;
 import java.util.List;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.DetectObjectsEvent;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.DetectedObject;
@@ -17,7 +18,6 @@ import bgu.spl.mics.application.objects.StampedDetectedObjects;
  */
 public class CameraService extends MicroService {
     private final Camera camera;
-    private static int cameraId = 0;
 
     /**
      * Constructor for CameraService.
@@ -37,13 +37,21 @@ public class CameraService extends MicroService {
      */
     @Override
     protected void initialize() {
-        this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
-            int currentTime = tick.getTime();
+        this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
+            int currentTime = e.getTime();
             List<StampedDetectedObjects> relevantDetectedObjectsList = camera.getDetectedObjectsListByTime(currentTime);
             for (StampedDetectedObjects stampedDetectedObjects : relevantDetectedObjectsList) {
-                sendEvent(new DetectObjectsEvent(detectedObject)); //! check what should I pass to the event
+                messageBus.sendEvent(new DetectObjectsEvent(stampedDetectedObjects));
             }
         });
+
+        this.subscribeBroadcast(TerminatedBroadcast, (TerminatedBroadcast e) -> {
+            terminate(); // ! Implement error handling
+        });
+
+        this.subscribeBroadcast(CrashedBroadcast, (CrashedBroadcast e) -> {
+            terminate(); // ! Implement error handling
+        });
     }
-    
+
 }

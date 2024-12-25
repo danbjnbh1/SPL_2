@@ -28,10 +28,11 @@ public class Camera {
     public List<StampedDetectedObjects> getDetectedObjectsListByTime(int time) {
         List<StampedDetectedObjects> result = new ArrayList<StampedDetectedObjects>();
         for (StampedDetectedObjects stampedDetectedObjects : detectedObjectsList) {
-            if (time - frequency <= stampedDetectedObjects.getTime() || stampedDetectedObjects.getTime() <= time) { //! implement getTime()
+            if (time - frequency <= stampedDetectedObjects.getTime() && stampedDetectedObjects.getTime() <= time) {
                 result.add(stampedDetectedObjects);
             }
             return detectedObjectsList;
         }
+        return null;
     }
 }
