@@ -1,6 +1,14 @@
 package bgu.spl.mics.application.services;
 
+import java.util.List;
+
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.CrashedBroadcast;
+import bgu.spl.mics.application.messages.DetectObjectsEvent;
+import bgu.spl.mics.application.messages.TerminatedBroadcast;
+import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.objects.LiDarWorkerTracker;
+import bgu.spl.mics.application.objects.StampedDetectedObjects;
 
 /**
  * LiDarService is responsible for processing data from the LiDAR sensor and
@@ -29,6 +37,17 @@ public class LiDarService extends MicroService {
      */
     @Override
     protected void initialize() {
-        // TODO Implement this
+        this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
+            
+        });
+        
+        this.subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast e) -> {
+            terminate(); // ! Implement error handling
+        });
+
+        this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast e) -> {
+            terminate(); // ! Implement error handling
+        });
+        
     }
 }
