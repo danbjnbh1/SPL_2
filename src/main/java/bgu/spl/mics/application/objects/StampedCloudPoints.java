@@ -8,7 +8,7 @@ public class StampedCloudPoints {
     
     private int time;
     private int id;
-    private double[][] cloudPoints;
+    private CloudPoint[] cloudPoints;
 
     /**
      * Constructor for StampedCloudPoints.
@@ -16,7 +16,7 @@ public class StampedCloudPoints {
      * @param cloudPoints A 2D array of cloud points.
      * @param time The timestamp of the cloud points.
      */
-    public StampedCloudPoints(double[][] cloudPoints, int time, int id) {
+    public StampedCloudPoints(CloudPoint[] cloudPoints, int time, int id) {
         this.cloudPoints = cloudPoints;
         this.time = time;
         this.id = id;
@@ -27,7 +27,7 @@ public class StampedCloudPoints {
      *
      * @return The cloud points.
      */
-    public double[][] getCloudPoints() {
+    public CloudPoint[] getCloudPoints() {
         return cloudPoints;
     }
 
@@ -48,7 +48,7 @@ public class StampedCloudPoints {
         this.id = id;
     }   
 
-    public void setCloudPoints(double[][] cloudPoints) {
+    public void setCloudPoints(CloudPoint[] cloudPoints) {
         this.cloudPoints = cloudPoints;
     }
 
