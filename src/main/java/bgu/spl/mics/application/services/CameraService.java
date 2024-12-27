@@ -8,7 +8,6 @@ import bgu.spl.mics.application.messages.DetectObjectsEvent;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.Camera;
-import bgu.spl.mics.application.objects.DetectedObject;
 import bgu.spl.mics.application.objects.StampedDetectedObjects;
 
 /**
@@ -41,9 +40,9 @@ public class CameraService extends MicroService {
     protected void initialize() {
         this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
             int currentTime = e.getTime();
-            List<StampedDetectedObjects> relevantDetectedObjectsList = camera.getDetectedObjectsListByTime(currentTime);
-            for (StampedDetectedObjects stampedDetectedObjects : relevantDetectedObjectsList) {
-                messageBus.sendEvent(new DetectObjectsEvent(stampedDetectedObjects));
+            StampedDetectedObjects detectedObjectsToPublish = camera.getDetectedObjectsByTime(currentTime);
+            if (detectedObjectsToPublish != null) {
+                this.sendEvent(new DetectObjectsEvent(detectedObjectsToPublish));
             }
         });
 

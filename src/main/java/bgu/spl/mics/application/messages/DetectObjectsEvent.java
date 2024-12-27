@@ -6,7 +6,7 @@ import bgu.spl.mics.Event;
 import bgu.spl.mics.application.objects.DetectedObject;
 import bgu.spl.mics.application.objects.StampedDetectedObjects;
 
-public class DetectObjectsEvent implements Event {
+public class DetectObjectsEvent implements Event<String> {
     private final List<DetectedObject> detectedObjects;
     private final int time;
 
