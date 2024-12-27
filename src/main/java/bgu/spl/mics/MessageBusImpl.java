@@ -12,7 +12,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * All other methods and members you add the class must be private.
  */
 public class MessageBusImpl implements MessageBus {
-	private static final MessageBusImpl instance = new MessageBusImpl();
+	private static class MessageBusImplHolder {
+		private static final MessageBusImpl instance = new MessageBusImpl();
+	}
 
 	private final ConcurrentHashMap<MicroService, BlockingQueue<Message>> microServiceQueues;
 	private final ConcurrentHashMap<Class<? extends Event>, ConcurrentLinkedQueue<MicroService>> eventSubscriptions;
@@ -29,7 +31,7 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	public static MessageBusImpl getInstance() {
-		return instance;
+		return MessageBusImplHolder.instance;
 	}
 
 	@Override
