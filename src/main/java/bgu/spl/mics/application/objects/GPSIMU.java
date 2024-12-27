@@ -23,7 +23,7 @@ public class GPSIMU {
         this.poses = parsePoses(path);
     }
 
-    private List<Pose> parsePoses(String path) {
+    public List<Pose> parsePoses(String path) {
         Gson gson = new Gson();
         try (FileReader readrer = new FileReader(path)){
             Type type = new TypeToken<List<Pose>>() {}.getType();
