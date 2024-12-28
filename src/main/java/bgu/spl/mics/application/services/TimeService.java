@@ -35,7 +35,7 @@ public class TimeService extends MicroService {
         int currentTick = 1;
         while (currentTick <= duration) {
             try {
-                Thread.sleep(tickTime);
+                Thread.sleep(tickTime * 1000);
             } catch (InterruptedException e) {
                 // ! Implement error handling
                 e.printStackTrace();

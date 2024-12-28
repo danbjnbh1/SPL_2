@@ -3,8 +3,8 @@ package bgu.spl.mics.application.services;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import bgu.spl.mics.Broadcast;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.PoseEvent;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
@@ -50,16 +50,18 @@ public class FusionSlamService extends MicroService {
         this.subscribeEvent(TrackedObjectsEvent.class, (TrackedObjectsEvent e) -> {
             List<TrackedObject> trackedObjects = e.getTrackedObjects();
             fusionSlam.processTrackedObjects(trackedObjects);
-
         });
 
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast b) -> {
-            // Update the counter when a TerminationBroadcast is received
             int count = terminationCounter.incrementAndGet();
             if (count >= totalSensorsNum) {
                 // fusionSlam.createOutputJson();
-                terminate();
+                stop();
             }
+        });
+
+        subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast e) -> {
+            stop();
         });
 
         this.subscribeEvent(PoseEvent.class, (PoseEvent e) -> {
@@ -68,8 +70,7 @@ public class FusionSlamService extends MicroService {
         });
 
         this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
-            int currentTick = e.getTime();
-
+            // ! check what to do here
         });
     }
 }

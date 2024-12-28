@@ -20,4 +20,16 @@ public class LandMark {
     public String getId() {
         return id;
     }
+
+    public List<CloudPoint> getCoordinates() {
+        return coordinates;
+    }
+
+    public void setCoordinates(List<CloudPoint> coordinates) {
+        this.coordinates = coordinates;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

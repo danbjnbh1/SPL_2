@@ -28,26 +28,90 @@ public class FusionSlam {
         poses.add(pose);
     }
 
+    // ! check about what if qw get the objects before we have the pose, can
+    // happen??
     public void processTrackedObjects(List<TrackedObject> trackedObjects) {
         for (TrackedObject trackedObject : trackedObjects) {
-            if (isKnownObject(trackedObject)) {
-                // updateObject(trackedObject);
+            LandMark existingLandMark = getLandMark(trackedObject);
+            if (existingLandMark != null) {
+                updateLandMark(trackedObject, existingLandMark);
             } else {
-                // addObject(trackedObject);
+                addLandMark(trackedObject);
             }
         }
     }
 
-    private boolean isKnownObject(TrackedObject trackedObject) {
+    private LandMark getLandMark(TrackedObject trackedObject) {
         for (LandMark landmark : landmarks) {
             if (landmark.getId().equals(trackedObject.getId())) {
-                return true;
+                return landmark;
             }
         }
-        return false;
+        return null;
     }
 
-    private List<CloudPoint> transformToGlobalCoordinates(List<CloudPoint> localCoordinates) {
+    private void updateLandMark(TrackedObject trackedObject, LandMark landmark) {
+        List<CloudPoint> newCloudPoints = getObjectGlobalPoints(trackedObject);
+        List<CloudPoint> existingCloudPoints = landmark.getCoordinates();
+        List<CloudPoint> updatedCloudPoints = new ArrayList<>();
+
+        int minSize = Math.min(existingCloudPoints.size(), newCloudPoints.size());
+        for (int i = 0; i < minSize; i++) {
+            CloudPoint newPoint = newCloudPoints.get(i);
+            CloudPoint existingPoint = existingCloudPoints.get(i);
+
+            double avgX = (newPoint.getX() + existingPoint.getX()) / 2;
+            double avgY = (newPoint.getY() + existingPoint.getY()) / 2;
+
+            updatedCloudPoints.add(new CloudPoint(avgX, avgY));
+        }
+
+        // Add any new points that were not in the existing list
+        if (newCloudPoints.size() > existingCloudPoints.size()) {
+            updatedCloudPoints.addAll(newCloudPoints.subList(existingCloudPoints.size(), newCloudPoints.size()));
+        }
+
+        landmark.setCoordinates(updatedCloudPoints);
+
+    }
+
+    private void addLandMark(TrackedObject trackedObject) {
+        List<CloudPoint> globalCloudPoints = getObjectGlobalPoints(trackedObject);
+
+        LandMark landMark = new LandMark(trackedObject.getId(), trackedObject.getDescription(), globalCloudPoints);
+        landmarks.add(landMark);
+    }
+
+    private CloudPoint transformToGlobalPoint(Pose pose, CloudPoint localPoint) {
+        final double localX = localPoint.getX();
+        final double localY = localPoint.getY();
+
+        double yawRadians = Math.toRadians(pose.getYaw());
+        double cos = Math.cos(yawRadians);
+        double sin = Math.sin(yawRadians);
+
+        final double globalX = cos * localX - sin * localY + pose.getX();
+        final double globalY = sin * localX + cos * localY + pose.getY();
+        return new CloudPoint(globalX, globalY);
+    }
+
+    private List<CloudPoint> getObjectGlobalPoints(TrackedObject trackedObject) {
+        Pose pose = getPoseByTime(trackedObject.getTime());
+        List<CloudPoint> localPoints = trackedObject.getCloudPoints();
+
+        List<CloudPoint> globalPoints = new ArrayList<>();
+        for (CloudPoint localPoint : localPoints) {
+            globalPoints.add(transformToGlobalPoint(pose, localPoint));
+        }
+        return globalPoints;
+    }
+
+    private Pose getPoseByTime(int time) {
+        for (Pose pose : poses) {
+            if (pose.getTime() == time) {
+                return pose;
+            }
+        }
         return null;
     }
 }
