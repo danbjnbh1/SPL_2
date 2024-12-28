@@ -8,8 +8,9 @@ import java.util.List;
 
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.Configuration.Cameras.CameraConfiguration;
-import bgu.spl.mics.application.Configuration.LidarWorkers.LidarConfiguration;
+import bgu.spl.mics.application.Configuration.Lidars.LidarConfiguration;
 import bgu.spl.mics.application.objects.Camera;
+import bgu.spl.mics.application.objects.CameraDataBase;
 import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.GPSIMU;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
@@ -49,7 +50,7 @@ public class GurionRockRunner {
             // Build absolute paths for the other files
             String poseJsonFilePath = configAbsolutePath.resolve(config.getPoseJsonFile()).toString();
             String cameraDataPath = configAbsolutePath.resolve(config.getCameras().getCameraDatasPath()).toString();
-            String lidarDataPath = configAbsolutePath.resolve(config.getLidarWorkers().getLidarsDataPath()).toString();
+            String lidarDataPath = configAbsolutePath.resolve(config.getLidars().getLidarsDataPath()).toString();
 
             GPSIMU gpsimu = new GPSIMU(0, STATUS.UP, poseJsonFilePath);
             MicroService poseService = new PoseService(gpsimu);
@@ -59,16 +60,17 @@ public class GurionRockRunner {
             fusionSlamService.run();
 
             List<MicroService> cameraServices = new ArrayList<>();
+            CameraDataBase cameraDataBase = new CameraDataBase(cameraDataPath);
             for (CameraConfiguration cameraConfig : config.getCameras().getCamerasConfigurations()) {
                 Camera camera = new Camera(cameraConfig.getId(), cameraConfig.getFrequency(),
-                        cameraConfig.getCameraKey(), cameraDataPath);
+                        cameraConfig.getCameraKey(), cameraDataBase);
                 MicroService cameraService = new CameraService(camera);
                 cameraServices.add(cameraService);
                 cameraService.run();
             }
 
             List<MicroService> lidarServices = new ArrayList<>();
-            for (LidarConfiguration lidarConfig : config.getLidarWorkers().getLidarConfigurations()) {
+            for (LidarConfiguration lidarConfig : config.getLidars().getLidarConfigurations()) {
                 LiDarWorkerTracker lidar = new LiDarWorkerTracker(lidarConfig.getId(), lidarConfig.getFrequency(),
                         lidarDataPath);
                 MicroService lidarService = new LiDarService(lidar);
@@ -82,9 +84,7 @@ public class GurionRockRunner {
             // TODO: Parse configuration file.
             // TODO: Initialize system components and services.
             // TODO: Start the simulation.
-        } catch (
-
-        IOException e) {
+        } catch (Error e) {
             e.printStackTrace();
         }
     }

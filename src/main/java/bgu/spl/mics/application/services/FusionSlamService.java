@@ -53,7 +53,7 @@ public class FusionSlamService extends MicroService {
 
         this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
             int currentTick = e.getTime();
-
+            
         });
     }
 }

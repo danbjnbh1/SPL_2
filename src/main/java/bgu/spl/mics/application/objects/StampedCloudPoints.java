@@ -45,17 +45,4 @@ public class StampedCloudPoints {
     public int getId() {
         return id;
     }
-
-    public void setId(int id) {
-        this.id = id;
-    }   
-
-    public void setCloudPoints(List<CloudPoint> cloudPoints) {
-        this.cloudPoints = cloudPoints;
-    }
-
-    public void setTime(int time) {
-        this.time = time;
-    }
-
 }

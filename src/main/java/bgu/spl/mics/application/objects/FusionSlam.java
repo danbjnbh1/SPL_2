@@ -31,9 +31,9 @@ public class FusionSlam {
     public void processTrackedObjects(List<TrackedObject> trackedObjects) {
         for (TrackedObject trackedObject : trackedObjects) {
             if (isKnownObject(trackedObject)) {
-                updateObject(trackedObject);
+                // updateObject(trackedObject);
             } else {
-                addObject(trackedObject);
+                // addObject(trackedObject);
             }
         }
     }
@@ -48,12 +48,6 @@ public class FusionSlam {
     }
 
     private List<CloudPoint> transformToGlobalCoordinates(List<CloudPoint> localCoordinates) {
-        List<CloudPoint> globalCoordinates = new ArrayList<>();
-        for (CloudPoint localCoordinate : localCoordinates) {
-            double globalX = localCoordinate.getX() + currentPose.getX();
-            double globalY = localCoordinate.getY() + currentPose.getY();
-            globalCoordinates.add(new CloudPoint((int) globalX, (int) globalY));
-        }
-        return globalCoordinates;
+        return null;
     }
 }
