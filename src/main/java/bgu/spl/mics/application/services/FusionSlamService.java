@@ -1,9 +1,12 @@
 package bgu.spl.mics.application.services;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import bgu.spl.mics.Broadcast;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.PoseEvent;
+import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 import bgu.spl.mics.application.objects.FusionSlam;
@@ -20,6 +23,8 @@ import bgu.spl.mics.application.objects.TrackedObject;
  */
 public class FusionSlamService extends MicroService {
     private final FusionSlam fusionSlam;
+    private final AtomicInteger terminationCounter;
+    private final int totalSensorsNum;
 
     /**
      * Constructor for FusionSlamService.
@@ -27,9 +32,11 @@ public class FusionSlamService extends MicroService {
      * @param fusionSlam The FusionSLAM object responsible for managing the global
      *                   map.
      */
-    public FusionSlamService(FusionSlam fusionSlam) {
+    public FusionSlamService(FusionSlam fusionSlam, int totalSensorsNum) {
         super("FusionSlamService");
         this.fusionSlam = fusionSlam;
+        this.terminationCounter = new AtomicInteger(0);
+        this.totalSensorsNum = totalSensorsNum;
     }
 
     /**
@@ -46,6 +53,15 @@ public class FusionSlamService extends MicroService {
 
         });
 
+        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast b) -> {
+            // Update the counter when a TerminationBroadcast is received
+            int count = terminationCounter.incrementAndGet();
+            if (count >= totalSensorsNum) {
+                // fusionSlam.createOutputJson();
+                terminate();
+            }
+        });
+
         this.subscribeEvent(PoseEvent.class, (PoseEvent e) -> {
             Pose pose = e.getPose();
             fusionSlam.addPose(pose);
@@ -53,7 +69,7 @@ public class FusionSlamService extends MicroService {
 
         this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
             int currentTick = e.getTime();
-            
+
         });
     }
 }

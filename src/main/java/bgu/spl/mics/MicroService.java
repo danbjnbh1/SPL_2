@@ -157,6 +157,11 @@ public abstract class MicroService implements Runnable {
         return name;
     }
 
+    public final void stop() {
+        messageBus.unregister(this);
+        terminate();
+    }
+
     /**
      * The entry point of the micro-service. TODO: you must complete this code
      * otherwise you will end up in an infinite loop.

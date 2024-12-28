@@ -1,6 +1,5 @@
 package bgu.spl.mics.application;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -14,7 +13,6 @@ import bgu.spl.mics.application.objects.CameraDataBase;
 import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.GPSIMU;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
-import bgu.spl.mics.application.objects.STATUS;
 import bgu.spl.mics.application.services.CameraService;
 import bgu.spl.mics.application.services.FusionSlamService;
 import bgu.spl.mics.application.services.LiDarService;
@@ -52,12 +50,9 @@ public class GurionRockRunner {
             String cameraDataPath = configAbsolutePath.resolve(config.getCameras().getCameraDatasPath()).toString();
             String lidarDataPath = configAbsolutePath.resolve(config.getLidars().getLidarsDataPath()).toString();
 
-            GPSIMU gpsimu = new GPSIMU(0, STATUS.UP, poseJsonFilePath);
+            GPSIMU gpsimu = new GPSIMU(poseJsonFilePath);
             MicroService poseService = new PoseService(gpsimu);
             poseService.run();
-
-            MicroService fusionSlamService = new FusionSlamService(FusionSlam.getInstance());
-            fusionSlamService.run();
 
             List<MicroService> cameraServices = new ArrayList<>();
             CameraDataBase cameraDataBase = new CameraDataBase(cameraDataPath);
@@ -77,6 +72,10 @@ public class GurionRockRunner {
                 lidarServices.add(lidarService);
                 lidarService.run();
             }
+
+            int totalSensorsNum = cameraServices.size() + lidarServices.size() + 1; // +1 for GPSIMU
+            MicroService fusionSlamService = new FusionSlamService(FusionSlam.getInstance(), totalSensorsNum);
+            fusionSlamService.run();
 
             MicroService timeService = new TimeService(config.getDuration(), config.getTickTime());
             timeService.run();
