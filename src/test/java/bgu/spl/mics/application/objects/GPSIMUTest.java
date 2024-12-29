@@ -15,6 +15,7 @@ public class GPSIMUTest {
     @BeforeEach
     public void setUp() {
         gpsimu = new GPSIMU(POSE_DATA_PATH);
+        gpsimu.updateTime(1);
     }
 
     @Test
