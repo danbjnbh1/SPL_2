@@ -1,7 +1,5 @@
 package bgu.spl.mics.application.services;
 
-import java.util.List;
-
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
@@ -9,6 +7,7 @@ import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.DetectedObject;
+import bgu.spl.mics.application.objects.STATUS;
 import bgu.spl.mics.application.objects.StampedDetectedObjects;
 
 /**
@@ -41,19 +40,49 @@ public class CameraService extends MicroService {
     protected void initialize() {
         this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
             int currentTime = e.getTime();
-            List<StampedDetectedObjects> relevantDetectedObjectsList = camera.getDetectedObjectsListByTime(currentTime);
-            for (StampedDetectedObjects stampedDetectedObjects : relevantDetectedObjectsList) {
-                messageBus.sendEvent(new DetectObjectsEvent(stampedDetectedObjects));
+            camera.updateTime(currentTime);
+
+            StampedDetectedObjects detectedObjectsToPublish = camera.getDetectedObjectsByTime();
+            String error = getDetectedError(detectedObjectsToPublish);
+
+            if (error != null) {
+                this.sendBroadcast(new CrashedBroadcast(error, this.getName()));
+                terminate();
+                return;
+            }
+
+            if (detectedObjectsToPublish != null) {
+                this.sendEvent(new DetectObjectsEvent(detectedObjectsToPublish));
+            }
+
+            if (camera.getStatus() == STATUS.DOWN) {
+                stop();
             }
         });
 
         this.subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast e) -> {
-            terminate(); // ! Implement error handling
+            if (e.getServiceClass() == TimeService.class) {
+                stop();
+            }
         });
 
         this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast e) -> {
-            terminate(); // ! Implement error handling
+            stop();
         });
+    }
+
+    String getDetectedError(StampedDetectedObjects detectedObjectsToPublish) {
+        if (detectedObjectsToPublish == null) {
+            return null;
+        }
+
+        for (DetectedObject detectedObject : detectedObjectsToPublish.getDetectedObjects()) {
+            if (detectedObject.getId() == "ERROR") {
+                return "Camera " + camera.getId() + detectedObject.getDescription();
+            }
+        }
+
+        return null;
     }
 
 }

@@ -2,6 +2,8 @@ package bgu.spl.mics;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import bgu.spl.mics.application.messages.TerminatedBroadcast;
+
 /**
  * The MicroService is an abstract class that any micro-service in the system
  * must extend. The abstract MicroService class is responsible to get and
@@ -157,24 +159,34 @@ public abstract class MicroService implements Runnable {
         return name;
     }
 
+    public final void stop() {
+        sendBroadcast(new TerminatedBroadcast(getClass()));
+        terminate();
+        Thread currentThread = Thread.currentThread();
+        if (currentThread != null && currentThread.isAlive()) {
+            currentThread.interrupt();
+        }
+    }
+
     /**
      * The entry point of the micro-service. TODO: you must complete this code
      * otherwise you will end up in an infinite loop.
      */
     @Override
     public final void run() {
-        messageBus.register(this); //! maybe should be in the initialize
+        messageBus.register(this);
         initialize();
         while (!terminated) {
             try {
                 Message message = messageBus.awaitMessage(this);
                 Callback callback = callbacks.get(message.getClass());
+
                 if (callback != null) {
                     callback.call(message);
                 }
             } catch (InterruptedException e) {
-                //! implement error handling
                 Thread.currentThread().interrupt();
+                break;
             }
         }
         messageBus.unregister(this);

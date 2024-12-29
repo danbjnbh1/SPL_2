@@ -8,17 +8,15 @@ public class CloudPoint {
 
     private double x;
     private double y;
-    private double z;
 
     /**
      * Constructor for CloudPoint.
      *
      * @param x The x-coordinate of the point.
      * @param y The y-coordinate of the point.
-     * @param z The z-coordinate of the point.
      */
 
-     public CloudPoint(double x, double y, double z) {
+     public CloudPoint(double x, double y) {
          this.x = x;
          this.y = y;
      }
@@ -30,13 +28,4 @@ public class CloudPoint {
      public double getY() {
          return y;
      }
-
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    public void setY(double y) {
-        this.y = y;
-    }
-
 }

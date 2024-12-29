@@ -1,6 +1,5 @@
 package bgu.spl.mics.application.objects;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,31 +7,54 @@ import java.util.List;
  * Responsible for detecting objects in the environment.
  */
 public class Camera {
-    private static int idCounter = 0;
     private final int id;
     private final int frequency;
+    private int currentTime;
     private STATUS status;
     private final List<StampedDetectedObjects> detectedObjectsList;
+    CameraDataBase dataBase;
 
-    public Camera(int frequency) {
-        this.id = ++Camera.idCounter;
+    public Camera(int id, int frequency, String key, CameraDataBase dataBase) {
         this.frequency = frequency;
+        this.id = id;
         this.status = STATUS.UP;
-        this.detectedObjectsList = new ArrayList<StampedDetectedObjects>();
+        this.detectedObjectsList = dataBase.getCameraData(key);
+        this.currentTime = 0;
     }
 
     public int getId() {
         return id;
     }
 
-    public List<StampedDetectedObjects> getDetectedObjectsListByTime(int time) {
-        List<StampedDetectedObjects> result = new ArrayList<StampedDetectedObjects>();
-        for (StampedDetectedObjects stampedDetectedObjects : detectedObjectsList) {
-            if (time - frequency <= stampedDetectedObjects.getTime() && stampedDetectedObjects.getTime() <= time) {
-                result.add(stampedDetectedObjects);
-            }
-            return detectedObjectsList;
+    public STATUS getStatus() {
+        return status;
+    }
+
+    private boolean isDone() {
+        return currentTime - frequency >= detectedObjectsList.get(detectedObjectsList.size() - 1).getTime();
+    }
+
+    /**
+     * Updates the current time of the camera and checks if the camera has completed
+     * its work.
+     * If the camera has completed its work, it sets the status to DOWN.
+     *
+     * @param currentTime the current time tick to update
+     */
+    public void updateTime(int currentTime) {
+        this.currentTime = currentTime;
+        if (isDone()) {
+            this.status = STATUS.DOWN;
         }
+    }
+
+    public StampedDetectedObjects getDetectedObjectsByTime() {
+        for (StampedDetectedObjects stampedDetectedObjects : detectedObjectsList) {
+            if (stampedDetectedObjects.getTime() + frequency == currentTime) {
+                return stampedDetectedObjects;
+            }
+        }
+
         return null;
     }
 }

@@ -14,7 +14,8 @@ public class GPSIMUTest {
 
     @BeforeEach
     public void setUp() {
-        gpsimu = new GPSIMU(1, STATUS.UP, POSE_DATA_PATH);
+        gpsimu = new GPSIMU(POSE_DATA_PATH);
+        gpsimu.updateTime(1);
     }
 
     @Test
@@ -49,7 +50,7 @@ public class GPSIMUTest {
 
     @Test
     public void testSetCurrentTime() {
-        gpsimu.setCurrentTime(2);
+        gpsimu.updateTime(2);
         Pose pose = gpsimu.getPose();
         assertNotNull(pose);
         assertEquals(2, pose.getTime());
