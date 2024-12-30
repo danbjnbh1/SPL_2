@@ -12,6 +12,7 @@ import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.CameraDataBase;
 import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.GPSIMU;
+import bgu.spl.mics.application.objects.LiDarDataBase;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
 import bgu.spl.mics.application.services.CameraService;
 import bgu.spl.mics.application.services.FusionSlamService;
@@ -64,10 +65,10 @@ public class GurionRockRunner {
                 cameraService.run();
             }
 
+            LiDarDataBase lidarDataBase = LiDarDataBase.getInstance(lidarDataPath);
             List<MicroService> lidarServices = new ArrayList<>();
             for (LidarConfiguration lidarConfig : config.getLidars().getLidarConfigurations()) {
-                LiDarWorkerTracker lidar = new LiDarWorkerTracker(lidarConfig.getId(), lidarConfig.getFrequency(),
-                        lidarDataPath);
+                LiDarWorkerTracker lidar = new LiDarWorkerTracker(lidarConfig.getId(), lidarConfig.getFrequency(), lidarDataBase);
                 MicroService lidarService = new LiDarService(lidar);
                 lidarServices.add(lidarService);
                 lidarService.run();
