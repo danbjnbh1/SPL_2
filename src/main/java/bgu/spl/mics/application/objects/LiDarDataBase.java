@@ -16,30 +16,45 @@ import bgu.spl.mics.MessageBusImpl;
  */
 public class LiDarDataBase {
 
+    // Singleton instance
+    private static LiDarDataBase instance;
+
+    // List to hold parsed LiDAR data
+    private List<StampedCloudPoints> cloudPoints;
+
+    /**
+     * Private constructor to prevent direct instantiation.
+     *
+     * @param filePath The path to the LiDAR data file.
+     */
+    private LiDarDataBase(String path) {
+        cloudPoints = parseCloudPoints(path);
+    }
+
+    /**
+     * Parses the JSON file containing LiDAR data into a list of StampedCloudPoints.
+     *
+     * @param filePath The path to the JSON file.
+     * @return A list of StampedCloudPoints objects.
+     */
+    private List<StampedCloudPoints> parseCloudPoints(String filePath) {
+        Gson gson = new Gson();
+        try (FileReader reader = new FileReader(path)) {
+            Type type = new TypeToken<List<StampedCloudPoints>>() {}.getType();
+            return gson.fromJson(reader, type);
+        } catch (IOException e) {
+            System.err.println("Error reading the LiDAR data file: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     /**
      * Returns the singleton instance of LiDarDataBase.
      *
      * @param filePath The path to the LiDAR data file.
      * @return The singleton instance of LiDarDataBase.
      */
-    private List<StampedCloudPoints> cloudPoints;
-    private static LiDarDataBase instance;
-
-    private LiDarDataBase(String path) {
-        cloudPoints = parseCloudPoints(path);
-    }
-
-    public List<StampedCloudPoints> parseCloudPoints(String path) {
-        Gson gson = new Gson();
-        try (FileReader readrer = new FileReader(path)){
-            Type type = new TypeToken<List<StampedCloudPoints>>() {}.getType();
-            return gson.fromJson(readrer, type);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    
     public static synchronized LiDarDataBase getInstance(String filePath) {
         if (instance == null) {
             instance = new LiDarDataBase(filePath);
