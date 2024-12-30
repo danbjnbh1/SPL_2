@@ -15,7 +15,7 @@ import bgu.spl.mics.application.messages.TrackedObjectsEvent;
  */
 public class LiDarWorkerTracker {
 
-    private final String id; // Unique ID of the worker
+    private final int id; // Unique ID of the worker
     private final int frequency; // Time interval at which the worker operates
     private STATUS status; // Current status of the worker (e.g., UP, DOWN)
     private List<TrackedObject> lastTrackedObjects; // Last tracked objects
@@ -29,7 +29,7 @@ public class LiDarWorkerTracker {
      * @param dataPath  The data path to the LiDAR database.
      * @param dataBase  The LiDarDataBase instance.
      */
-    public LiDarWorkerTracker(String id, int frequency, LiDarDataBase dataBase) {
+    public LiDarWorkerTracker(int id, int frequency, LiDarDataBase dataBase) {
         this.id = id;
         this.frequency = frequency;
         this.lastTrackedObjects = new ArrayList<>();
@@ -37,8 +37,7 @@ public class LiDarWorkerTracker {
         this.dataBase = dataBase;
     }
 
-    // Getters
-    public String getId() {
+    public int getId() {
         return id;
     }
 

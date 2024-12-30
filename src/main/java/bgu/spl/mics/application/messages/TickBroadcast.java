@@ -9,7 +9,7 @@ public class TickBroadcast implements Broadcast {
         this.tick = tick;
     }
 
-    public int getTick() {
+    public int getTime() {
         return tick;
     }
 }

@@ -19,7 +19,7 @@ public class LiDarWorkerTrackerTest {
     public void setUp() {
         // Initialize the LiDarDataBase instance with the path to the JSON file
         dataBase = LiDarDataBase.getInstance("src/test/resources/lidar_data.json");
-        workerTracker = new LiDarWorkerTracker("worker1", 5, dataBase);
+        workerTracker = new LiDarWorkerTracker(1, 5, dataBase);
 
         // Add some initial tracked objects
         List<CloudPoint> cloudPoints1 = new ArrayList<>();
