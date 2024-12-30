@@ -86,7 +86,7 @@ public class LiDarWorkerTracker {
         List<DetectObjectsEvent> detectedEvents = new ArrayList<>();
         for (StampedCloudPoints stampedCloudPoint : stampedCloudPoints) {
             if (stampedCloudPoint.getTime() + frequency == currentTime) {
-                detectedEvents.add(new DetectObjectsEvent(stampedCloudPoint));
+                // detectedEvents.add(new DetectObjectsEvent(stampedCloudPoint));
             }
         }
         return detectedEvents;
@@ -105,9 +105,10 @@ public class LiDarWorkerTracker {
                 trackedCloudPoints.addAll(stampedCloudPoint.getCloudPoints());
             }
         }
-        if (trackedCloudPoints.isEmpty()) {
-            return null;
-        }
-        return new TrackedObjectsEvent(id, trackedCloudPoints);
+        // if (trackedCloudPoints.isEmpty()) {
+        //     return null;
+        // }
+        // return new TrackedObjectsEvent(id, trackedCloudPoints);
+        return null;
     }
 }

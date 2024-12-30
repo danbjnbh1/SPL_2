@@ -3,16 +3,19 @@ package bgu.spl.mics.application.objects;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-
-import bgu.spl.mics.MessageBusImpl;
 
 /**
  * LiDarDataBase is a singleton class responsible for managing LiDAR data.
- * It provides access to cloud point data and other relevant information for tracked objects.
+ * It provides access to cloud point data and other relevant information for
+ * tracked objects.
  */
 public class LiDarDataBase {
 
@@ -39,9 +42,24 @@ public class LiDarDataBase {
      */
     private List<StampedCloudPoints> parseCloudPoints(String filePath) {
         Gson gson = new Gson();
-        try (FileReader reader = new FileReader(path)) {
-            Type type = new TypeToken<List<StampedCloudPoints>>() {}.getType();
-            return gson.fromJson(reader, type);
+        try (FileReader reader = new FileReader(filePath)) {
+            Type type = new TypeToken<List<JsonObject>>() {}.getType();
+            List<JsonObject> jsonObjects = gson.fromJson(reader, type);
+            List<StampedCloudPoints> stampedCloudPointsList = new ArrayList<>();
+            for (JsonObject jsonObject : jsonObjects) {
+                int time = jsonObject.get("time").getAsInt();
+                String id = jsonObject.get("id").getAsString();
+                JsonArray cloudPointsArray = jsonObject.getAsJsonArray("cloudPoints");
+                List<CloudPoint> cloudPoints = new ArrayList<>();
+                for (JsonElement element : cloudPointsArray) {
+                    JsonArray pointArray = element.getAsJsonArray();
+                    double x = pointArray.get(0).getAsDouble();
+                    double y = pointArray.get(1).getAsDouble();
+                    cloudPoints.add(new CloudPoint(x, y));
+                }
+                stampedCloudPointsList.add(new StampedCloudPoints(cloudPoints, time, id));
+            }
+            return stampedCloudPointsList;
         } catch (IOException e) {
             System.err.println("Error reading the LiDAR data file: " + e.getMessage());
             e.printStackTrace();
@@ -60,5 +78,9 @@ public class LiDarDataBase {
             instance = new LiDarDataBase(filePath);
         }
         return instance;
+    }
+
+    public List<StampedCloudPoints> getCloudPoints() {
+        return cloudPoints;
     }
 }

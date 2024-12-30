@@ -9,7 +9,7 @@ import java.util.List;
 public class StampedCloudPoints {
     
     private int time;
-    private int id;
+    private String id;
     private List<CloudPoint> cloudPoints;
 
     /**
@@ -18,7 +18,7 @@ public class StampedCloudPoints {
      * @param cloudPoints A 2D array of cloud points.
      * @param time The timestamp of the cloud points.
      */
-    public StampedCloudPoints(List<CloudPoint> cloudPoints, int time, int id) {
+    public StampedCloudPoints(List<CloudPoint> cloudPoints, int time, String id) {
         this.cloudPoints = cloudPoints;
         this.time = time;
         this.id = id;
@@ -42,7 +42,7 @@ public class StampedCloudPoints {
         return time;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 }
