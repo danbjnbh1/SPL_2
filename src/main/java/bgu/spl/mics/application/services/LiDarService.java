@@ -1,14 +1,11 @@
 package bgu.spl.mics.application.services;
-
-import java.util.List;
-
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
-import bgu.spl.mics.application.objects.StampedDetectedObjects;
 
 /**
  * LiDarService is responsible for processing data from the LiDAR sensor and
@@ -20,15 +17,15 @@ import bgu.spl.mics.application.objects.StampedDetectedObjects;
  */
 public class LiDarService extends MicroService {
 
-    private final LiDarWorkerTracker LiDarWorkerTracker;
+    private final LiDarWorkerTracker liDarWorkerTracker;
     /**
      * Constructor for LiDarService.
      *
      * @param LiDarWorkerTracker A LiDAR Tracker worker object that this service will use to process data.
      */
-    public LiDarService(LiDarWorkerTracker LiDarWorkerTracker) {
-        super("LidarWorker" + LiDarWorkerTracker.getId());
-        this.LiDarWorkerTracker = LiDarWorkerTracker;
+    public LiDarService(LiDarWorkerTracker liDarWorkerTracker) {
+        super("LidarWorker" + liDarWorkerTracker.getId());
+        this.liDarWorkerTracker = liDarWorkerTracker;
     }
 
     /**
@@ -43,26 +40,15 @@ public class LiDarService extends MicroService {
         // Subscribe to TickBroadcast
         this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
             int currentTime = e.getTime();
-            List<StampedDetectedObjects> detectedObjectsToPublish = LiDarWorkerTracker.getDetectedObjectsByTime(currentTime);
-            // Process the detected objects and publish them if necessary
-            detectedObjectsToPublish.forEach(detectedObject -> {
-                // Add your logic to handle each detected object
-                System.out.println("Detected object at time " + currentTime + ": " + detectedObject);
-            });
+            TrackedObjectsEvent trackedObjectsEvent = liDarWorkerTracker.generateTrackedObjectsEvent(currentTime);
+            sendEvent(trackedObjectsEvent);
         });
 
         // Subscribe to DetectObjectsEvent
         this.subscribeEvent(DetectObjectsEvent.class, (DetectObjectsEvent e) -> {
-            // Handle the DetectObjectsEvent
-            String lidarKey = e.getLidarKey();
-            List<StampedDetectedObjects> detectedObjects = LiDarWorkerTracker.detectObjects(lidarKey);
-            // Process the detected objects
-            detectedObjects.forEach(detectedObject -> {
-                // Add your logic to handle each detected object
-                System.out.println("Detected object for LiDAR key " + lidarKey + ": " + detectedObject);
-            });
+            liDarWorkerTracker.processDetectedObjects(e);
             // Complete the event with the detected objects
-            complete(e, detectedObjects);
+            complete(e, true);
         });
 
         System.out.println(getName() + " initialized and ready to process events.");

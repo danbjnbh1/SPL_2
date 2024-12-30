@@ -20,6 +20,13 @@ public class TrackedObject {
         this.cloudPoints = cloudPoints;
     }
 
+    public TrackedObject(TrackedObject other) {
+        this.id = other.id;
+        this.description = other.description;
+        this.time = other.time;
+        this.cloudPoints = other.cloudPoints;
+    }
+
     public String getId() {
         return id;
     }

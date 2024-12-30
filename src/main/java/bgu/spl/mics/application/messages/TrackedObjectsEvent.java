@@ -7,8 +7,14 @@ import bgu.spl.mics.application.objects.TrackedObject;
 
 public class TrackedObjectsEvent implements Event<String> {
 
-    public List<TrackedObject> getTrackedObjects() {
-        // OR: remove the null and implement this
-        return null;
+    private List<TrackedObject> trackedObjects;
+    public TrackedObjectsEvent(List<TrackedObject> trackedObjects) {
+        this.trackedObjects = trackedObjects;
     }
+
+    public List<TrackedObject> getTrackedObjects() {
+        return trackedObjects;
+    }
+
+
 }

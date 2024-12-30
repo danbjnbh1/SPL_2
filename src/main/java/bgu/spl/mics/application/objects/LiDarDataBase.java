@@ -83,4 +83,15 @@ public class LiDarDataBase {
     public List<StampedCloudPoints> getCloudPoints() {
         return cloudPoints;
     }
+
+    public List<StampedCloudPoints> getListOfStampedCloudPointsByTime(int time) {
+        List<StampedCloudPoints> stampedCloudPointsList = new ArrayList<>();
+        for (StampedCloudPoints stampedCloudPoint : cloudPoints) {
+            if (stampedCloudPoint.getTime() == time) {
+                stampedCloudPointsList.add(stampedCloudPoint);
+            }
+        }
+        return stampedCloudPointsList;
+    }
+
 }
