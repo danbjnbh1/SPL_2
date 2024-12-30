@@ -53,7 +53,10 @@ public class FusionSlamService extends MicroService {
             complete(e, true);
         });
 
-        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast b) -> {
+        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast e) -> {
+            if (e.getServiceClass() == TimeService.class) {
+                stop();
+            }
             int count = terminationCounter.incrementAndGet();
             if (count >= totalSensorsNum) {
                 // fusionSlam.createOutputJson();

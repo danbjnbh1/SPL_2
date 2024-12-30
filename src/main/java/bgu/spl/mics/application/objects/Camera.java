@@ -30,6 +30,10 @@ public class Camera {
         return status;
     }
 
+    public void setStatus(STATUS status) {
+        this.status = status;
+    }
+
     private boolean isDone() {
         return currentTime - frequency >= detectedObjectsList.get(detectedObjectsList.size() - 1).getTime();
     }

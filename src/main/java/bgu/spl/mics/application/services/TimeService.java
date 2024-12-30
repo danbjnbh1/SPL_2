@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 
 /**
@@ -44,6 +45,7 @@ public class TimeService extends MicroService {
             this.messageBus.sendBroadcast(new TickBroadcast(currentTick));
             currentTick++;
         }
+        sendBroadcast(new TerminatedBroadcast(TimeService.class));
         terminate();
     }
 }

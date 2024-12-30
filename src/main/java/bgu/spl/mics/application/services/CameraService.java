@@ -46,6 +46,7 @@ public class CameraService extends MicroService {
             String error = getDetectedError(detectedObjectsToPublish);
 
             if (error != null) {
+                camera.setStatus(STATUS.ERROR);
                 this.sendBroadcast(new CrashedBroadcast(error, this.getName()));
                 terminate();
                 return;
