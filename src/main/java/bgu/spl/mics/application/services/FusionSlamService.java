@@ -50,6 +50,7 @@ public class FusionSlamService extends MicroService {
         this.subscribeEvent(TrackedObjectsEvent.class, (TrackedObjectsEvent e) -> {
             List<TrackedObject> trackedObjects = e.getTrackedObjects();
             fusionSlam.processTrackedObjects(trackedObjects);
+            complete(e, true);
         });
 
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast b) -> {
@@ -67,6 +68,7 @@ public class FusionSlamService extends MicroService {
         this.subscribeEvent(PoseEvent.class, (PoseEvent e) -> {
             Pose pose = e.getPose();
             fusionSlam.addPose(pose);
+            complete(e, true);
         });
 
         this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {

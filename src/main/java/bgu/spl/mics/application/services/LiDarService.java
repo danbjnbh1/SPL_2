@@ -50,9 +50,6 @@ public class LiDarService extends MicroService {
             // Complete the event with the detected objects
             complete(e, true);
         });
-
-        System.out.println(getName() + " initialized and ready to process events.");
-
         
         this.subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast e) -> {
             terminate(); // ! Implement error handling
