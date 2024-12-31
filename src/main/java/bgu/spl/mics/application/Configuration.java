@@ -11,7 +11,7 @@ public class Configuration {
     @SerializedName("Cameras")
     private Cameras cameras;
 
-    @SerializedName("Lidars")
+    @SerializedName("LiDarWorkers")
     private Lidars lidars;
 
     @SerializedName("poseJsonFile")
