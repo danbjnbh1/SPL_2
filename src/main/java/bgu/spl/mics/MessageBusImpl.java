@@ -2,6 +2,7 @@ package bgu.spl.mics;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus
@@ -105,5 +106,17 @@ public class MessageBusImpl implements MessageBus {
 		}
 		return queue.take();
 	}
+
+	public Message awaitMessage(MicroService m, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
+        BlockingQueue<Message> queue = microServiceQueues.get(m);
+        if (queue == null) {
+            throw new IllegalStateException("MicroService not registered");
+        }
+        Message message = queue.poll(timeout, unit);
+        if (message == null) {
+            throw new TimeoutException("Timeout while waiting for message");
+        }
+        return message;
+    }
 
 }
