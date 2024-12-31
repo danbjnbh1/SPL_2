@@ -4,6 +4,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.Configuration.Cameras.CameraConfiguration;
@@ -62,29 +65,53 @@ public class GurionRockRunner {
                         cameraConfig.getCameraKey(), cameraDataBase);
                 MicroService cameraService = new CameraService(camera);
                 cameraServices.add(cameraService);
-                cameraService.run();
             }
 
             LiDarDataBase lidarDataBase = LiDarDataBase.getInstance(lidarDataPath);
             List<MicroService> lidarServices = new ArrayList<>();
             for (LidarConfiguration lidarConfig : config.getLidars().getLidarConfigurations()) {
-                LiDarWorkerTracker lidar = new LiDarWorkerTracker(lidarConfig.getId(), lidarConfig.getFrequency(), lidarDataBase);
+                LiDarWorkerTracker lidar = new LiDarWorkerTracker(lidarConfig.getId(), lidarConfig.getFrequency(),
+                        lidarDataBase);
                 MicroService lidarService = new LiDarService(lidar);
                 lidarServices.add(lidarService);
-                lidarService.run();
             }
 
             int totalSensorsNum = cameraServices.size() + lidarServices.size() + 1; // +1 for GPSIMU
             MicroService fusionSlamService = new FusionSlamService(FusionSlam.getInstance(), totalSensorsNum);
-            fusionSlamService.run();
 
             MicroService timeService = new TimeService(config.getDuration(), config.getTickTime());
-            timeService.run();
+
+            // Create a thread pool
+            ExecutorService executorService = Executors
+                    .newFixedThreadPool(cameraServices.size() + lidarServices.size() + 3); // +3 for GPSIMU, FusionSlam, and TimeService
+
+            // Submit the pose service
+            executorService.submit(poseService);
+
+            // Submit the camera services
+            for (MicroService cameraService : cameraServices) {
+                executorService.submit(cameraService);
+            }
+
+            // Submit the LiDAR services
+            for (MicroService lidarService : lidarServices) {
+                executorService.submit(lidarService);
+            }
+
+            // Submit the FusionSlam service
+            executorService.submit(fusionSlamService);
+
+            // Submit the TimeService
+            executorService.submit(timeService);
+
+            // Shutdown the executor service and wait for all tasks to complete
+            executorService.shutdown();
+            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 
             // TODO: Parse configuration file.
             // TODO: Initialize system components and services.
             // TODO: Start the simulation.
-        } catch (Error e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
