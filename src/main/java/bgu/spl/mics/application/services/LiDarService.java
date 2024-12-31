@@ -1,12 +1,18 @@
 package bgu.spl.mics.application.services;
 
+import java.util.List;
+
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
+import bgu.spl.mics.application.objects.DetectedObject;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
+import bgu.spl.mics.application.objects.STATUS;
+import bgu.spl.mics.application.objects.StampedDetectedObjects;
+import bgu.spl.mics.application.objects.TrackedObject;
 
 /**
  * LiDarService is responsible for processing data from the LiDAR sensor and
@@ -44,7 +50,24 @@ public class LiDarService extends MicroService {
         this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
             int currentTime = e.getTime();
             TrackedObjectsEvent trackedObjectsEvent = liDarWorkerTracker.generateTrackedObjectsEvent(currentTime);
-            sendEvent(trackedObjectsEvent);
+            List<TrackedObject> trackedObjects = trackedObjectsEvent.getTrackedObjects();
+            String error = getDetectedError(trackedObjects);
+
+            if (error != null) {
+                liDarWorkerTracker.setStatus(STATUS.ERROR);
+                this.sendBroadcast(new CrashedBroadcast(error, this.getName()));
+                terminate();
+                return;
+            }
+
+            if (trackedObjects != null) {
+                this.sendEvent(trackedObjectsEvent);
+            }
+
+            if (liDarWorkerTracker.getStatus() == STATUS.DOWN) {
+                stop();
+            }
+
         });
 
         // Subscribe to DetectObjectsEvent
@@ -61,8 +84,23 @@ public class LiDarService extends MicroService {
         });
 
         this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast e) -> {
-            terminate(); // ! Implement error handling
+            stop();
         });
 
     }
+
+    String getDetectedError(List<TrackedObject> trackedObjects) {
+        if (trackedObjects == null) {
+            return null;
+        }
+
+        for (TrackedObject trackedObject : trackedObjects) {
+            if (trackedObject.getId() == "ERROR") {
+                return "Lidar " + trackedObject.getDescription();
+            }
+        }
+
+        return null;
+    }
+
 }
