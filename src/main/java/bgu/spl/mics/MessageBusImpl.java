@@ -91,11 +91,33 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public void unregister(MicroService m) {
+	public synchronized void unregister(MicroService m) {
+		Logger logger = Logger.getLogger(MessageBusImpl.class.getName());
+		logger.info("Unregistering " + m.getName());
+
+		// Remove the microservice's queue
 		microServiceQueues.remove(m);
-		eventSubscriptions.values().forEach((queue) -> queue.remove(m));
-		broadcastSubscriptions.values().forEach((queue) -> queue.remove(m));
-		eventFutures.entrySet().removeIf(entry -> entry.getValue().get() == m);
+
+		// Remove the microservice from event subscriptions
+		eventSubscriptions.values().forEach(queue -> {
+			synchronized (queue) {
+				queue.remove(m);
+			}
+		});
+
+		// Remove the microservice from broadcast subscriptions
+		broadcastSubscriptions.values().forEach(queue -> {
+			synchronized (queue) {
+				queue.remove(m);
+			}
+		});
+
+		// Remove the microservice's futures
+		synchronized (eventFutures) {
+			eventFutures.entrySet().removeIf(entry -> entry.getValue().get() == m);
+		}
+
+		logger.info("Unregistered " + m.getName());
 	}
 
 	@Override
@@ -107,16 +129,17 @@ public class MessageBusImpl implements MessageBus {
 		return queue.take();
 	}
 
-	public Message awaitMessage(MicroService m, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
-        BlockingQueue<Message> queue = microServiceQueues.get(m);
-        if (queue == null) {
-            throw new IllegalStateException("MicroService not registered");
-        }
-        Message message = queue.poll(timeout, unit);
-        if (message == null) {
-            throw new TimeoutException("Timeout while waiting for message");
-        }
-        return message;
-    }
+	public Message awaitMessage(MicroService m, long timeout, TimeUnit unit)
+			throws InterruptedException, TimeoutException {
+		BlockingQueue<Message> queue = microServiceQueues.get(m);
+		if (queue == null) {
+			throw new IllegalStateException("MicroService not registered");
+		}
+		Message message = queue.poll(timeout, unit);
+		if (message == null) {
+			throw new TimeoutException("Timeout while waiting for message");
+		}
+		return message;
+	}
 
 }
