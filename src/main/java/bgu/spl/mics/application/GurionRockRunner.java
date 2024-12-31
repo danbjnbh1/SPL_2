@@ -44,6 +44,7 @@ public class GurionRockRunner {
         try {
             System.out.println("Hello World!");
             String configPath = args[0];
+
             Configuration config = Configuration.ConfigurationParser.parseConfiguration(configPath);
 
             // Get the absolute path of the configuration file
