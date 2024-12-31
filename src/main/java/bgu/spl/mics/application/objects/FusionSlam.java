@@ -114,4 +114,8 @@ public class FusionSlam {
         }
         return null;
     }
+
+    public List<LandMark> getLandmarks() {
+        return landmarks;
+    }
 }

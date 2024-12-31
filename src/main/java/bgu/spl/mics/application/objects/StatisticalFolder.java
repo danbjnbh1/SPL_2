@@ -13,7 +13,15 @@ public class StatisticalFolder {
     private final AtomicInteger numTrackedObjects;
     private final AtomicInteger numLandmarks;
 
-    public StatisticalFolder() {
+    static class StatisticalFolderHolder {
+        static final StatisticalFolder INSTANCE = new StatisticalFolder();
+    }
+
+    public static StatisticalFolder getInstance() {
+        return StatisticalFolderHolder.INSTANCE;
+    }
+
+    private StatisticalFolder() {
         this.systemRuntime = new AtomicInteger(0);
         this.numDetectedObjects = new AtomicInteger(0);
         this.numTrackedObjects = new AtomicInteger(0);
@@ -35,8 +43,8 @@ public class StatisticalFolder {
     }
 
     // Increment the number of landmarks
-    public void incrementLandmarks(int count) {
-        this.numLandmarks.addAndGet(count);
+    public void setLandmarksCount(int count) {
+        this.numLandmarks.set(count);
     }
 
     public int getSystemRuntime() {

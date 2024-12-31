@@ -11,6 +11,7 @@ import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.Pose;
+import bgu.spl.mics.application.objects.StatisticalFolder;
 import bgu.spl.mics.application.objects.TrackedObject;
 
 /**
@@ -25,6 +26,7 @@ public class FusionSlamService extends MicroService {
     private final FusionSlam fusionSlam;
     private final AtomicInteger terminationCounter;
     private final int totalSensorsNum;
+    private StatisticalFolder statisticalFolder = StatisticalFolder.getInstance();
 
     /**
      * Constructor for FusionSlamService.
@@ -50,6 +52,8 @@ public class FusionSlamService extends MicroService {
         this.subscribeEvent(TrackedObjectsEvent.class, (TrackedObjectsEvent e) -> {
             List<TrackedObject> trackedObjects = e.getTrackedObjects();
             fusionSlam.processTrackedObjects(trackedObjects);
+
+            statisticalFolder.setLandmarksCount(fusionSlam.getLandmarks().size());
             complete(e, true);
         });
 

@@ -9,6 +9,7 @@ import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.DetectedObject;
 import bgu.spl.mics.application.objects.STATUS;
 import bgu.spl.mics.application.objects.StampedDetectedObjects;
+import bgu.spl.mics.application.objects.StatisticalFolder;
 
 /**
  * CameraService is responsible for processing data from the camera and
@@ -19,6 +20,7 @@ import bgu.spl.mics.application.objects.StampedDetectedObjects;
  */
 public class CameraService extends MicroService {
     private final Camera camera;
+    private final StatisticalFolder statisticalFolder = StatisticalFolder.getInstance();
 
     /**
      * Constructor for CameraService.
@@ -53,6 +55,7 @@ public class CameraService extends MicroService {
             }
 
             if (detectedObjectsToPublish != null) {
+                statisticalFolder.incrementDetectedObjects(detectedObjectsToPublish.getDetectedObjects().size());
                 this.sendEvent(new DetectObjectsEvent(detectedObjectsToPublish));
             }
 
