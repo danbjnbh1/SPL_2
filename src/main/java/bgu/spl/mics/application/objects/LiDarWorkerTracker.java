@@ -94,4 +94,8 @@ public class LiDarWorkerTracker {
     public List<TrackedObject> getLastTrackedObjects() {
         return lastTrackedObjects;
     }
+
+    public void setStatus(STATUS status) {
+        this.status = status;
+    }
 }
