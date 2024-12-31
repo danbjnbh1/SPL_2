@@ -95,8 +95,6 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public synchronized void unregister(MicroService m) {
-		Logger logger = Logger.getLogger(MessageBusImpl.class.getName());
-		logger.info("Unregistering " + m.getName());
 
 		// Remove the microservice's queue
 		microServiceQueues.remove(m);
