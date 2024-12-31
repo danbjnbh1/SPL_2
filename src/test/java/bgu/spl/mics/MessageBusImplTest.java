@@ -134,6 +134,8 @@ public class MessageBusImplTest {
     public void testUnregister() {
         logger.info("Starting testUnregister");
         messageBus.unregister(microService1);
+        logger.info("Starting testUnregister2222");
+
         assertThrows(IllegalStateException.class, () -> messageBus.awaitMessage(microService1, 1, TimeUnit.SECONDS));
     }
 

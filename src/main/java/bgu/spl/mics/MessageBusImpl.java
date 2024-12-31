@@ -2,7 +2,6 @@ package bgu.spl.mics;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
 
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus
@@ -21,6 +20,7 @@ public class MessageBusImpl implements MessageBus {
 	private final ConcurrentHashMap<Class<? extends Event>, ConcurrentLinkedQueue<MicroService>> eventSubscriptions;
 	private final ConcurrentHashMap<Class<? extends Broadcast>, ConcurrentLinkedQueue<MicroService>> broadcastSubscriptions;
 	private final ConcurrentHashMap<Event, Future> eventFutures;
+	private final ConcurrentHashMap<Future, MicroService> futureServiceMap;
 	private final ConcurrentHashMap<Class<? extends Event>, AtomicInteger> roundRobinCounters;
 
 	private MessageBusImpl() {
@@ -29,6 +29,7 @@ public class MessageBusImpl implements MessageBus {
 		broadcastSubscriptions = new ConcurrentHashMap<>();
 		eventFutures = new ConcurrentHashMap<>();
 		roundRobinCounters = new ConcurrentHashMap<>();
+		futureServiceMap = new ConcurrentHashMap<>();
 	}
 
 	public static MessageBusImpl getInstance() {
@@ -51,6 +52,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> void complete(Event<T> e, T result) {
 		Future<T> future = eventFutures.remove(e);
+		futureServiceMap.remove(future);
 		if (future != null) {
 			future.resolve(result);
 		}
@@ -80,6 +82,7 @@ public class MessageBusImpl implements MessageBus {
 			microServiceQueues.get(m).add(e);
 			Future<T> future = new Future<>();
 			eventFutures.put(e, future);
+			futureServiceMap.put(future, m);
 			return future;
 		}
 		return null;
@@ -95,7 +98,7 @@ public class MessageBusImpl implements MessageBus {
 		microServiceQueues.remove(m);
 		eventSubscriptions.values().forEach((queue) -> queue.remove(m));
 		broadcastSubscriptions.values().forEach((queue) -> queue.remove(m));
-		eventFutures.entrySet().removeIf(entry -> entry.getValue().get() == m);
+		eventFutures.entrySet().removeIf(entry -> futureServiceMap.get(entry.getValue()) == m);
 	}
 
 	@Override
