@@ -94,7 +94,9 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public void unregister(MicroService m) {
+	public synchronized void unregister(MicroService m) {
+
+		// Remove the microservice's queue
 		microServiceQueues.remove(m);
 		eventSubscriptions.values().forEach((queue) -> queue.remove(m));
 		broadcastSubscriptions.values().forEach((queue) -> queue.remove(m));
@@ -110,16 +112,17 @@ public class MessageBusImpl implements MessageBus {
 		return queue.take();
 	}
 
-	public Message awaitMessage(MicroService m, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
-        BlockingQueue<Message> queue = microServiceQueues.get(m);
-        if (queue == null) {
-            throw new IllegalStateException("MicroService not registered");
-        }
-        Message message = queue.poll(timeout, unit);
-        if (message == null) {
-            throw new TimeoutException("Timeout while waiting for message");
-        }
-        return message;
-    }
+	public Message awaitMessage(MicroService m, long timeout, TimeUnit unit)
+			throws InterruptedException, TimeoutException {
+		BlockingQueue<Message> queue = microServiceQueues.get(m);
+		if (queue == null) {
+			throw new IllegalStateException("MicroService not registered");
+		}
+		Message message = queue.poll(timeout, unit);
+		if (message == null) {
+			throw new TimeoutException("Timeout while waiting for message");
+		}
+		return message;
+	}
 
 }
