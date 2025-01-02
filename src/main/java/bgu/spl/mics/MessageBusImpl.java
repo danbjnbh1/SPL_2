@@ -79,10 +79,10 @@ public class MessageBusImpl implements MessageBus {
 			int index = roundRobinCounters.get(type).getAndIncrement() % subscribers.size();
 			MicroService[] subscriberArray = subscribers.toArray(new MicroService[0]);
 			MicroService m = subscriberArray[index];
-			microServiceQueues.get(m).add(e);
 			Future<T> future = new Future<>();
 			eventFutures.put(e, future);
 			futureServiceMap.put(future, m);
+			microServiceQueues.get(m).add(e);
 			return future;
 		}
 		return null;

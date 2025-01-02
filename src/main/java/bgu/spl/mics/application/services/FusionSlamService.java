@@ -79,7 +79,9 @@ public class FusionSlamService extends MicroService {
         });
 
         this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
-            // ! check what to do here
+            System.out.println("1234");
+
+            //! check what to do here
         });
     }
 }

@@ -37,12 +37,12 @@ public class TimeService extends MicroService {
         while (currentTick <= duration) {
             try {
                 Thread.sleep(tickTime * 1000);
+                System.out.println("Time service currentTick" + currentTick);
             } catch (InterruptedException e) {
                 // ! Implement error handling
                 e.printStackTrace();
             }
-
-            this.messageBus.sendBroadcast(new TickBroadcast(currentTick));
+            sendBroadcast(new TickBroadcast(currentTick));
             currentTick++;
         }
         sendBroadcast(new TerminatedBroadcast(TimeService.class));

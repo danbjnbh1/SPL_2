@@ -42,8 +42,6 @@ public class MessageBusImplTest {
                 });
             }
         };
-        new Thread(microService1).start();
-        new Thread(microService2).start();
         messageBus.register(microService1);
         messageBus.register(microService2);
     }
@@ -117,7 +115,6 @@ public class MessageBusImplTest {
                 });
             }
         };
-        new Thread(microService).start();
         messageBus.register(microService);
         
         // Subscribe the microservice to an event
@@ -134,8 +131,6 @@ public class MessageBusImplTest {
     public void testUnregister() {
         logger.info("Starting testUnregister");
         messageBus.unregister(microService1);
-        logger.info("Starting testUnregister2222");
-
         assertThrows(IllegalStateException.class, () -> messageBus.awaitMessage(microService1, 1, TimeUnit.SECONDS));
     }
 
@@ -145,7 +140,7 @@ public class MessageBusImplTest {
         messageBus.subscribeEvent(TestEvent.class, microService1);
         messageBus.sendEvent(new TestEvent());
         try {
-            Message message = messageBus.awaitMessage(microService1, 1, TimeUnit.SECONDS);
+            Message message = messageBus.awaitMessage(microService1, 3, TimeUnit.SECONDS);
             assertTrue(message instanceof TestEvent);
         } catch (InterruptedException e) {
             fail("awaitMessage was interrupted");

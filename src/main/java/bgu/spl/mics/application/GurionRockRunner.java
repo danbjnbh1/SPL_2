@@ -57,7 +57,6 @@ public class GurionRockRunner {
 
             GPSIMU gpsimu = new GPSIMU(poseJsonFilePath);
             MicroService poseService = new PoseService(gpsimu);
-            poseService.run();
 
             List<MicroService> cameraServices = new ArrayList<>();
             CameraDataBase cameraDataBase = new CameraDataBase(cameraDataPath);
@@ -80,7 +79,7 @@ public class GurionRockRunner {
             int totalSensorsNum = cameraServices.size() + lidarServices.size() + 1; // +1 for GPSIMU
             MicroService fusionSlamService = new FusionSlamService(FusionSlam.getInstance(), totalSensorsNum);
 
-            MicroService timeService = new TimeService(config.getDuration(), config.getTickTime());
+            MicroService timeService = new TimeService(config.getTickTime(), config.getDuration());
 
             // Create a thread pool
             ExecutorService executorService = Executors
