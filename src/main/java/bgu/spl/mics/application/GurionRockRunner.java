@@ -113,6 +113,7 @@ public class GurionRockRunner {
             System.out.println(StatisticalFolder.getInstance().getNumLandmarks());
             System.out.println(StatisticalFolder.getInstance().getNumTrackedObjects());
             System.out.println(StatisticalFolder.getInstance().getSystemRuntime());
+            OutputWriter.writeOutput(configPath);
 
             // TODO: Parse configuration file.
             // TODO: Initialize system components and services.
