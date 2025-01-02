@@ -20,6 +20,7 @@ public class LiDarWorkerTracker {
     private STATUS status; // Current status of the worker (e.g., UP, DOWN)
     private List<TrackedObject> lastTrackedObjects; // Last tracked objects
     private final LiDarDataBase dataBase; // Reference to the LiDarDataBase
+    private int currentTime;
 
     /**
      * Constructor for the LiDarWorkerTracker.
@@ -35,6 +36,7 @@ public class LiDarWorkerTracker {
         this.lastTrackedObjects = new ArrayList<>();
         this.status = STATUS.UP;
         this.dataBase = dataBase;
+        this.currentTime = 0;
     }
 
     public int getId() {
@@ -53,14 +55,12 @@ public class LiDarWorkerTracker {
      * Generates TrackedObjectsEvent from the detected objects at the current time
      * tick.
      *
-     * @param currentTime The current simulation time.
      * @return A TrackedObjectsEvent containing tracked objects, or null if no data
      *         is available.
      */
-    public TrackedObjectsEvent generateTrackedObjectsEvent(int currentTime) {
+    public TrackedObjectsEvent generateTrackedObjectsEvent() {
         List<TrackedObject> objectToSends = new ArrayList<>();
         Iterator<TrackedObject> iterator = lastTrackedObjects.iterator();
-
         while (iterator.hasNext()) {
             TrackedObject trackedObject = iterator.next();
             if (trackedObject.getTime() + frequency <= currentTime) {
@@ -72,6 +72,18 @@ public class LiDarWorkerTracker {
         return new TrackedObjectsEvent(objectToSends);
     }
 
+    public void updateTime(int currentTime) {
+        this.currentTime = currentTime;
+
+        if (isDone()) {
+            status = STATUS.DOWN;
+        }
+    }
+
+    private boolean isDone(){
+        return currentTime >= dataBase.getLastTime() + frequency;
+    }
+
     public void processDetectedObjects(DetectObjectsEvent e) {
         StampedDetectedObjects stampedDetectedObjects = e.getDetectedObjects();
 
@@ -79,10 +91,9 @@ public class LiDarWorkerTracker {
         List<DetectedObject> detectedObjects = stampedDetectedObjects.getDetectedObjects();
 
         List<StampedCloudPoints> listOfStampedCloudPoints = dataBase.getListOfStampedCloudPointsByTime(time);
-
         for (DetectedObject detectedObject : detectedObjects) {
             for (StampedCloudPoints stampedCloudPoint : listOfStampedCloudPoints) {
-                if (detectedObject.getId() == stampedCloudPoint.getId()) {
+                if (detectedObject.getId().equals(stampedCloudPoint.getId())) {
                     lastTrackedObjects.add(new TrackedObject(detectedObject.getId(), detectedObject.getDescription(),
                             stampedCloudPoint.getTime(), stampedCloudPoint.getCloudPoints()));
                 }

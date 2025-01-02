@@ -63,6 +63,7 @@ public class FusionSlamService extends MicroService {
             }
             int count = terminationCounter.incrementAndGet();
             if (count >= totalSensorsNum) {
+                System.out.println("here stop");
                 // fusionSlam.createOutputJson();
                 stop();
             }
@@ -79,8 +80,6 @@ public class FusionSlamService extends MicroService {
         });
 
         this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
-            System.out.println("1234");
-
             //! check what to do here
         });
     }

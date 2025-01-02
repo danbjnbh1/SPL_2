@@ -43,7 +43,8 @@ public class LiDarDataBase {
     private List<StampedCloudPoints> parseCloudPoints(String filePath) {
         Gson gson = new Gson();
         try (FileReader reader = new FileReader(filePath)) {
-            Type type = new TypeToken<List<JsonObject>>() {}.getType();
+            Type type = new TypeToken<List<JsonObject>>() {
+            }.getType();
             List<JsonObject> jsonObjects = gson.fromJson(reader, type);
             List<StampedCloudPoints> stampedCloudPointsList = new ArrayList<>();
             for (JsonObject jsonObject : jsonObjects) {
@@ -92,6 +93,10 @@ public class LiDarDataBase {
             }
         }
         return stampedCloudPointsList;
+    }
+
+    public int getLastTime() {
+        return cloudPoints.get(cloudPoints.size() - 1).getTime();
     }
 
 }
