@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.StatisticalFolder;
@@ -35,6 +36,13 @@ public class TimeService extends MicroService {
      */
     @Override
     protected void initialize() {
+        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast e) -> {
+            terminate();
+        });
+        subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast e) -> {
+            terminate();
+        });
+
         int currentTick = 1;
         while (currentTick <= duration) {
             try {

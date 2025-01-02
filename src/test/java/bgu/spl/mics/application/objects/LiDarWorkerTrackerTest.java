@@ -51,7 +51,8 @@ public class LiDarWorkerTrackerTest {
     @Test
     public void testGenerateTrackedObjectsEvent() {
         // Generate the tracked objects event at current time 9
-        TrackedObjectsEvent event = workerTracker.generateTrackedObjectsEvent(9);
+        workerTracker.updateTime(9);
+        TrackedObjectsEvent event = workerTracker.generateTrackedObjectsEvent();
 
         // Ensure that the event is not null
         assertNotNull(event);
