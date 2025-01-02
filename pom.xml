@@ -33,7 +33,7 @@
     <build>
         <plugins>
             <!-- Maven Compiler Plugin -->
-            <plugin>
+          <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
@@ -47,6 +47,9 @@
                 <version>1.6.0</version>
                 <configuration>
                     <mainClass>bgu.spl.mics.application.GurionRockRunner</mainClass>
+                    <arguments>
+                        <argument>example_input/configuration_file.json</argument>
+                    </arguments>
                 </configuration>
             </plugin>
             <!-- Maven Surefire Plugin -->
