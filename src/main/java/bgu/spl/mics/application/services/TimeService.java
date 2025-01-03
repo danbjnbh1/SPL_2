@@ -47,7 +47,7 @@ public class TimeService extends MicroService {
 
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
             int currentTick = e.getTime();
-            if (currentTick < duration) {
+            if (currentTick <= duration) {
                 try {
                     Thread.sleep(tickTime * 200);
                     System.out.println("Time service currentTick" + currentTick);
@@ -63,26 +63,13 @@ public class TimeService extends MicroService {
             }
         });
 
-        int currentTick = 0;
-        sendBroadcast(new TickBroadcast(currentTick));
+        // Start the timer
+        try {
+            Thread.sleep(tickTime * 200);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+        sendBroadcast(new TickBroadcast(1));
         statisticalFolder.incrementSystemRuntime();
-        currentTick++;
-
-        // int currentTick = 1;
-        // while (currentTick <= duration) {
-        // try {
-        // Thread.sleep(tickTime * 200);
-        // System.out.println("Time service currentTick" + currentTick);
-        // } catch (InterruptedException e) {
-        // // ! Implement error handling
-        // e.printStackTrace();
-        // }
-        // sendBroadcast(new TickBroadcast(currentTick));
-        // statisticalFolder.incrementSystemRuntime();
-        // currentTick++;
-        // }
-        // sendBroadcast(new TerminatedBroadcast(TimeService.class));
-        // terminate();
-
     }
 }

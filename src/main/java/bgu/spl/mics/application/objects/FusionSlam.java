@@ -77,7 +77,6 @@ public class FusionSlam {
 
     private void addLandMark(TrackedObject trackedObject) {
         List<CloudPoint> globalCloudPoints = getObjectGlobalPoints(trackedObject);
-
         LandMark landMark = new LandMark(trackedObject.getId(), trackedObject.getDescription(), globalCloudPoints);
         landmarks.add(landMark);
     }

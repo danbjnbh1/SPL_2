@@ -7,7 +7,6 @@ import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.PoseEvent;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
-import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.Pose;
@@ -64,7 +63,6 @@ public class FusionSlamService extends MicroService {
             int count = terminationCounter.incrementAndGet();
             if (count >= totalSensorsNum) {
                 System.out.println("here stop");
-                // fusionSlam.createOutputJson();
                 stop();
             }
         });
@@ -77,10 +75,6 @@ public class FusionSlamService extends MicroService {
             Pose pose = e.getPose();
             fusionSlam.addPose(pose);
             complete(e, true);
-        });
-
-        this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
-            //! check what to do here
         });
     }
 }
