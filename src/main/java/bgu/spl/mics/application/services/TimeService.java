@@ -4,7 +4,6 @@ import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
-import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.StatisticalFolder;
 
 /**
@@ -38,20 +37,17 @@ public class TimeService extends MicroService {
     @Override
     protected void initialize() {
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast e) -> {
-            //רק אם הפיוזן סאלם שלח טרמינט לעצור את הזמן 
-            if(e.getServiceClass()==FusionSlamService.class){
+            if (e.getServiceClass() == FusionSlamService.class) {
                 stop();
             }
         });
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast e) -> {
-            //אם קיבלתי קראש אז לעצור
             stop();
         });
-        
-    
+
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
             int currentTick = e.getTime();
-            if (currentTick < duration){
+            if (currentTick < duration) {
                 try {
                     Thread.sleep(tickTime * 200);
                     System.out.println("Time service currentTick" + currentTick);
@@ -61,37 +57,32 @@ public class TimeService extends MicroService {
                 currentTick++;
                 sendBroadcast(new TickBroadcast(currentTick));
                 statisticalFolder.incrementSystemRuntime();
-                
-            }
-            else{
-                // sendBroadcast(new TerminatedBroadcast(TimeService.class));
-                // terminate();
+
+            } else {
                 stop();
             }
         });
 
-        int currentTick = 1;
+        int currentTick = 0;
         sendBroadcast(new TickBroadcast(currentTick));
         statisticalFolder.incrementSystemRuntime();
         currentTick++;
 
-        
-    
         // int currentTick = 1;
         // while (currentTick <= duration) {
-        //     try {
-        //         Thread.sleep(tickTime * 200);
-        //         System.out.println("Time service currentTick" + currentTick);
-        //     } catch (InterruptedException e) {
-        //         // ! Implement error handling
-        //         e.printStackTrace();
-        //     }
-        //     sendBroadcast(new TickBroadcast(currentTick));
-        //     statisticalFolder.incrementSystemRuntime();
-        //     currentTick++;
+        // try {
+        // Thread.sleep(tickTime * 200);
+        // System.out.println("Time service currentTick" + currentTick);
+        // } catch (InterruptedException e) {
+        // // ! Implement error handling
+        // e.printStackTrace();
+        // }
+        // sendBroadcast(new TickBroadcast(currentTick));
+        // statisticalFolder.incrementSystemRuntime();
+        // currentTick++;
         // }
         // sendBroadcast(new TerminatedBroadcast(TimeService.class));
         // terminate();
-     
+
     }
 }
