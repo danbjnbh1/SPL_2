@@ -95,8 +95,8 @@ public class LiDarDataBase {
         return stampedCloudPointsList;
     }
 
-    public int getLastTime() {
-        return cloudPoints.get(cloudPoints.size() - 1).getTime();
+    public StampedCloudPoints getLastPoint() {
+        return cloudPoints.get(cloudPoints.size() - 1);
     }
 
 }

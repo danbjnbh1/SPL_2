@@ -8,8 +8,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import bgu.spl.mics.application.messages.TrackedObjectsEvent;
-
 public class LiDarWorkerTrackerTest {
 
     private LiDarWorkerTracker workerTracker;
@@ -52,13 +50,12 @@ public class LiDarWorkerTrackerTest {
     public void testGenerateTrackedObjectsEvent() {
         // Generate the tracked objects event at current time 9
         workerTracker.updateTime(9);
-        TrackedObjectsEvent event = workerTracker.generateTrackedObjectsEvent();
+        List<TrackedObject> trackedObjects = workerTracker.getCurrentTrackedObjects();
 
         // Ensure that the event is not null
-        assertNotNull(event);
+        assertNotNull(trackedObjects);
 
         // Ensure that the event contains the expected tracked objects
-        List<TrackedObject> trackedObjects = event.getTrackedObjects();
         assertEquals(3, trackedObjects.size());
 
         TrackedObject trackedObject1 = trackedObjects.get(0);

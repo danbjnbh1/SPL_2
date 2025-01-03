@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
-import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 
 /**
  * LiDarWorkerTracker is responsible for managing a LiDAR worker.
@@ -58,7 +57,7 @@ public class LiDarWorkerTracker {
      * @return A TrackedObjectsEvent containing tracked objects, or null if no data
      *         is available.
      */
-    public TrackedObjectsEvent generateTrackedObjectsEvent() {
+    public List<TrackedObject> getCurrentTrackedObjects() {
         List<TrackedObject> objectToSends = new ArrayList<>();
         Iterator<TrackedObject> iterator = lastTrackedObjects.iterator();
         while (iterator.hasNext()) {
@@ -69,19 +68,11 @@ public class LiDarWorkerTracker {
             }
         }
 
-        return new TrackedObjectsEvent(objectToSends);
+        return objectToSends;
     }
 
     public void updateTime(int currentTime) {
         this.currentTime = currentTime;
-
-        if (isDone()) {
-            status = STATUS.DOWN;
-        }
-    }
-
-    private boolean isDone(){
-        return currentTime >= dataBase.getLastTime() + frequency;
     }
 
     public void processDetectedObjects(DetectObjectsEvent e) {
@@ -94,6 +85,13 @@ public class LiDarWorkerTracker {
         for (DetectedObject detectedObject : detectedObjects) {
             for (StampedCloudPoints stampedCloudPoint : listOfStampedCloudPoints) {
                 if (detectedObject.getId().equals(stampedCloudPoint.getId())) {
+                    if (stampedCloudPoint == dataBase.getLastPoint()) {
+                        status = STATUS.DOWN;
+                    }
+
+                    if (stampedCloudPoint.getId() == "ERROR") {
+                        status = STATUS.ERROR;
+                    } //! check this
                     lastTrackedObjects.add(new TrackedObject(detectedObject.getId(), detectedObject.getDescription(),
                             stampedCloudPoint.getTime(), stampedCloudPoint.getCloudPoints()));
                 }

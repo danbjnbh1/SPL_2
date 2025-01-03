@@ -49,7 +49,7 @@ public class LiDarService extends MicroService {
         // Subscribe to TickBroadcast
         this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
             liDarWorkerTracker.updateTime(e.getTime());
-            TrackedObjectsEvent trackedObjectsEvent = liDarWorkerTracker.generateTrackedObjectsEvent();
+            TrackedObjectsEvent trackedObjectsEvent = new TrackedObjectsEvent(liDarWorkerTracker.getCurrentTrackedObjects());
             List<TrackedObject> trackedObjects = trackedObjectsEvent.getTrackedObjects();
             String error = getDetectedError(trackedObjects);
 
