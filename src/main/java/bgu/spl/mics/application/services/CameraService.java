@@ -7,6 +7,7 @@ import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.DetectedObject;
+import bgu.spl.mics.application.objects.OutputData;
 import bgu.spl.mics.application.objects.STATUS;
 import bgu.spl.mics.application.objects.StampedDetectedObjects;
 import bgu.spl.mics.application.objects.StatisticalFolder;
@@ -21,6 +22,7 @@ import bgu.spl.mics.application.objects.StatisticalFolder;
 public class CameraService extends MicroService {
     private final Camera camera;
     private final StatisticalFolder statisticalFolder = StatisticalFolder.getInstance();
+    private final OutputData outputData = OutputData.getInstance();
 
     /**
      * Constructor for CameraService.
@@ -49,7 +51,10 @@ public class CameraService extends MicroService {
 
             if (error != null) {
                 camera.setStatus(STATUS.ERROR);
-                this.sendBroadcast(new CrashedBroadcast(error, this.getName()));
+                outputData.setFaultySensor(camera.getName());
+                outputData.setError(error);
+                outputData.setLastCameraFrame(camera.getName(), camera.getCrashedLastDetectedObjects(currentTime));
+                this.sendBroadcast(new CrashedBroadcast(currentTime));
                 terminate();
                 return;
             }
@@ -71,6 +76,7 @@ public class CameraService extends MicroService {
         });
 
         this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast e) -> {
+            outputData.setLastCameraFrame(getName(), camera.getCrashedLastDetectedObjects(e.getCrashedTime()));
             stop();
         });
     }
@@ -81,8 +87,8 @@ public class CameraService extends MicroService {
         }
 
         for (DetectedObject detectedObject : detectedObjectsToPublish.getDetectedObjects()) {
-            if (detectedObject.getId() == "ERROR") {
-                return "Camera " + camera.getId() + detectedObject.getDescription();
+            if (detectedObject.getId().equals("ERROR")) {
+                return detectedObject.getDescription();
             }
         }
 

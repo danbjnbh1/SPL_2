@@ -11,20 +11,20 @@ public class TrackedObject {
     private final String id;
     private final String description;
     private final int time;
-    private final List<CloudPoint> cloudPoints;
+    private final List<CloudPoint> coordinates;
 
     public TrackedObject(String id, String description, int time, List<CloudPoint> cloudPoints) {
         this.id = id;
         this.description = description;
         this.time = time;
-        this.cloudPoints = cloudPoints;
+        this.coordinates = cloudPoints;
     }
 
     public TrackedObject(TrackedObject other) {
         this.id = other.id;
         this.description = other.description;
         this.time = other.time;
-        this.cloudPoints = other.cloudPoints;
+        this.coordinates = other.coordinates;
     }
 
     public String getId() {
@@ -39,7 +39,7 @@ public class TrackedObject {
         return time;
     }
 
-    public List<CloudPoint> getCloudPoints() {
-        return cloudPoints;
+    public List<CloudPoint> getCoordinates() {
+        return coordinates;
     }
 }

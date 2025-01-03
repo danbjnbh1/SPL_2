@@ -3,19 +3,13 @@ package bgu.spl.mics.application.messages;
 import bgu.spl.mics.Broadcast;
 
 public class CrashedBroadcast implements Broadcast {
-    private String serviceName;
-    private String error;
+    private int crashedTime;
 
-    public CrashedBroadcast(String error, String serviceName) {
-        this.serviceName = serviceName;
-        this.error = error;
+    public CrashedBroadcast(int crashedTime) {
+        this.crashedTime = crashedTime;
     }
 
-    public String getServiceName() {
-        return serviceName;
-    }
-
-    public String getError() {
-        return error;
+    public int getCrashedTime() {
+        return crashedTime;
     }
 }

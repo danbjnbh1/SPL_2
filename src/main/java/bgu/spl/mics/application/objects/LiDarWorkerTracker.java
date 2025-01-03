@@ -15,9 +15,11 @@ import bgu.spl.mics.application.messages.DetectObjectsEvent;
 public class LiDarWorkerTracker {
 
     private final int id; // Unique ID of the worker
+    private final String name;
     private final int frequency; // Time interval at which the worker operates
     private STATUS status; // Current status of the worker (e.g., UP, DOWN)
     private List<TrackedObject> lastTrackedObjects; // Last tracked objects
+    private final List<TrackedObject> lastFrame;
     private final LiDarDataBase dataBase; // Reference to the LiDarDataBase
     private int currentTime;
 
@@ -33,9 +35,11 @@ public class LiDarWorkerTracker {
         this.id = id;
         this.frequency = frequency;
         this.lastTrackedObjects = new ArrayList<>();
+        this.lastFrame = new ArrayList<>();
         this.status = STATUS.UP;
         this.dataBase = dataBase;
         this.currentTime = 0;
+        this.name = "LiDarWorkerTracker" + id;
     }
 
     public int getId() {
@@ -51,7 +55,9 @@ public class LiDarWorkerTracker {
     }
 
     /**
-     * Generates a list of TrackedObjects from the detected objects at the current time tick.
+     * Generates a list of TrackedObjects from the detected objects at the current
+     * time tick.
+     * 
      * @return A list of TrackedObjects to publish.
      */
     public List<TrackedObject> getCurrentTrackedObjects() {
@@ -81,16 +87,16 @@ public class LiDarWorkerTracker {
         List<StampedCloudPoints> listOfStampedCloudPoints = dataBase.getListOfStampedCloudPointsByTime(time);
         for (DetectedObject detectedObject : detectedObjects) {
             for (StampedCloudPoints stampedCloudPoint : listOfStampedCloudPoints) {
+                lastFrame.clear();
                 if (detectedObject.getId().equals(stampedCloudPoint.getId())) {
-                    if (stampedCloudPoint == dataBase.getLastPoint()) {
-                        status = STATUS.DOWN;
-                    }
-
                     if (stampedCloudPoint.getId() == "ERROR") {
                         status = STATUS.ERROR;
-                    } //! check this
+                    } // ! check this
                     lastTrackedObjects.add(new TrackedObject(detectedObject.getId(), detectedObject.getDescription(),
                             stampedCloudPoint.getTime(), stampedCloudPoint.getCloudPoints()));
+                    lastFrame.add(new TrackedObject(detectedObject.getId(), detectedObject.getDescription(),
+                            stampedCloudPoint.getTime(), stampedCloudPoint.getCloudPoints()));
+                    dataBase.incrementNumOfConsumedCloudPoints();
                 }
             }
 
@@ -103,5 +109,19 @@ public class LiDarWorkerTracker {
 
     public void setStatus(STATUS status) {
         this.status = status;
+    }
+
+    public void updateStatus() {
+        if (dataBase.getNumOfConsumedCloudPoints().get() == dataBase.getCloudPoints().size()) {
+            status = STATUS.DOWN;
+        }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<TrackedObject> getLastFrame() {
+        return lastFrame;
     }
 }

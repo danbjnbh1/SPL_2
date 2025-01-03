@@ -42,6 +42,7 @@ public class TimeService extends MicroService {
             }
         });
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast e) -> {
+            System.out.println("TimeService received CrashedBroadcast");
             stop();
         });
 
@@ -49,7 +50,7 @@ public class TimeService extends MicroService {
             int currentTick = e.getTime();
             if (currentTick <= duration) {
                 try {
-                    Thread.sleep(tickTime * 200);
+                    Thread.sleep(tickTime * 1000);
                     System.out.println("Time service currentTick" + currentTick);
                 } catch (InterruptedException ex) {
                     ex.printStackTrace();

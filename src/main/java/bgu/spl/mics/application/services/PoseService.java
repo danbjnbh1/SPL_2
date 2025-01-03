@@ -1,10 +1,12 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.PoseEvent;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.GPSIMU;
+import bgu.spl.mics.application.objects.OutputData;
 import bgu.spl.mics.application.objects.STATUS;
 
 /**
@@ -15,6 +17,7 @@ import bgu.spl.mics.application.objects.STATUS;
 public class PoseService extends MicroService {
 
     GPSIMU gpsimu;
+    OutputData outputData = OutputData.getInstance();
 
     /**
      * Constructor for PoseService.
@@ -47,6 +50,11 @@ public class PoseService extends MicroService {
             if (e.getServiceClass() == TimeService.class) {
                 stop();
             }
+        });
+
+        subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast e) -> {
+            outputData.setPoses(gpsimu.getPosesUntilNow());
+            stop();
         });
     };
 }

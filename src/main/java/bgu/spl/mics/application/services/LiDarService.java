@@ -9,6 +9,7 @@ import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
+import bgu.spl.mics.application.objects.OutputData;
 import bgu.spl.mics.application.objects.STATUS;
 import bgu.spl.mics.application.objects.StatisticalFolder;
 import bgu.spl.mics.application.objects.TrackedObject;
@@ -26,6 +27,7 @@ public class LiDarService extends MicroService {
 
     private final LiDarWorkerTracker liDarWorkerTracker;
     private final StatisticalFolder statisticalFolder = StatisticalFolder.getInstance();
+    private final OutputData outputData = OutputData.getInstance();
 
     /**
      * Constructor for LiDarService.
@@ -49,13 +51,18 @@ public class LiDarService extends MicroService {
         // Subscribe to TickBroadcast
         this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
             liDarWorkerTracker.updateTime(e.getTime());
-            TrackedObjectsEvent trackedObjectsEvent = new TrackedObjectsEvent(liDarWorkerTracker.getCurrentTrackedObjects());
+            liDarWorkerTracker.updateStatus();
+            TrackedObjectsEvent trackedObjectsEvent = new TrackedObjectsEvent(
+                    liDarWorkerTracker.getCurrentTrackedObjects());
             List<TrackedObject> trackedObjects = trackedObjectsEvent.getTrackedObjects();
             String error = getDetectedError(trackedObjects);
 
             if (error != null) {
                 liDarWorkerTracker.setStatus(STATUS.ERROR);
-                this.sendBroadcast(new CrashedBroadcast(error, this.getName()));
+                outputData.setError(error);
+                outputData.setFaultySensor(liDarWorkerTracker.getName());
+                outputData.setLastLiDarWorkerTrackerFrame(getName(), liDarWorkerTracker.getLastFrame());
+                this.sendBroadcast(new CrashedBroadcast(e.getTime()));
                 terminate();
                 return;
             }
@@ -85,6 +92,8 @@ public class LiDarService extends MicroService {
         });
 
         this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast e) -> {
+            outputData.setLastLiDarWorkerTrackerFrame(liDarWorkerTracker.getName(),
+                    liDarWorkerTracker.getLastFrame());
             stop();
         });
 

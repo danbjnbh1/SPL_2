@@ -8,6 +8,7 @@ import java.util.List;
  */
 public class Camera {
     private final int id;
+    private final String name;
     private final int frequency;
     private int currentTime;
     private STATUS status;
@@ -20,6 +21,7 @@ public class Camera {
         this.status = STATUS.UP;
         this.detectedObjectsList = dataBase.getCameraData(key);
         this.currentTime = 0;
+        this.name = "Camera" + id;
     }
 
     public int getId() {
@@ -60,5 +62,21 @@ public class Camera {
         }
 
         return null;
+    }
+
+    public StampedDetectedObjects getCrashedLastDetectedObjects(int crashedTime) {
+        StampedDetectedObjects lastDetectedBeforeCrash = null;
+        for (StampedDetectedObjects stampedDetectedObjects : detectedObjectsList) {
+            if (stampedDetectedObjects.getTime() < crashedTime) {
+                lastDetectedBeforeCrash = stampedDetectedObjects;
+            } else if (stampedDetectedObjects.getTime() == crashedTime) {
+                break;
+            }
+        }
+        return lastDetectedBeforeCrash;
+    }
+
+    public String getName() {
+        return name;
     }
 }

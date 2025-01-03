@@ -64,4 +64,8 @@ public class GPSIMU {
             this.status = STATUS.DOWN;
         }
     }
+
+    public List<Pose> getPosesUntilNow() {
+        return poses.subList(0, currentTick);
+    }
 }

@@ -96,7 +96,7 @@ public class FusionSlam {
 
     private List<CloudPoint> getObjectGlobalPoints(TrackedObject trackedObject) {
         Pose pose = getPoseByTime(trackedObject.getTime());
-        List<CloudPoint> localPoints = trackedObject.getCloudPoints();
+        List<CloudPoint> localPoints = trackedObject.getCoordinates();
 
         List<CloudPoint> globalPoints = new ArrayList<>();
         for (CloudPoint localPoint : localPoints) {

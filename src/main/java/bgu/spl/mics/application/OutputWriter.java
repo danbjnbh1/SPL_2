@@ -42,7 +42,9 @@ public class OutputWriter {
         }
 
         // Create output data
-        OutputData outputData = new OutputData(statistics, landMarksMap);
+        OutputData outputData = OutputData.getInstance();
+        outputData.setStatistics(statistics);
+        outputData.setLandMarks(landMarksMap);
 
         // Write to JSON file
         Gson gson = new GsonBuilder().setPrettyPrinting().create();

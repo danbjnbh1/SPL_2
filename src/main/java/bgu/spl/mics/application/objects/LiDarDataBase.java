@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -24,6 +25,7 @@ public class LiDarDataBase {
 
     // List to hold parsed LiDAR data
     private List<StampedCloudPoints> cloudPoints;
+    private AtomicInteger numOfConsumedCloudPoints = new AtomicInteger(0);
 
     /**
      * Private constructor to prevent direct instantiation.
@@ -99,4 +101,11 @@ public class LiDarDataBase {
         return cloudPoints.get(cloudPoints.size() - 1);
     }
 
+    public void incrementNumOfConsumedCloudPoints() {
+        numOfConsumedCloudPoints.incrementAndGet();
+    }
+
+    public AtomicInteger getNumOfConsumedCloudPoints() {
+        return numOfConsumedCloudPoints;
+    }
 }

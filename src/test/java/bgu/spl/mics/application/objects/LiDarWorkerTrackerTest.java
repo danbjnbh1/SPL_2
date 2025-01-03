@@ -62,25 +62,25 @@ public class LiDarWorkerTrackerTest {
         assertEquals("Wall_1", trackedObject1.getId());
         assertEquals("Wall", trackedObject1.getDescription());
         assertEquals(2, trackedObject1.getTime());
-        assertEquals(2, trackedObject1.getCloudPoints().size());
-        assertEquals(0.1176, trackedObject1.getCloudPoints().get(0).getX());
-        assertEquals(3.6969, trackedObject1.getCloudPoints().get(0).getY());
+        assertEquals(2, trackedObject1.getCoordinates().size());
+        assertEquals(0.1176, trackedObject1.getCoordinates().get(0).getX());
+        assertEquals(3.6969, trackedObject1.getCoordinates().get(0).getY());
 
         TrackedObject trackedObject2 = trackedObjects.get(1);
         assertEquals("Wall_3", trackedObject2.getId());
         assertEquals("Wall", trackedObject2.getDescription());
         assertEquals(4, trackedObject2.getTime());
-        assertEquals(2, trackedObject2.getCloudPoints().size());
-        assertEquals(3.0451, trackedObject2.getCloudPoints().get(0).getX());
-        assertEquals(-0.38171, trackedObject2.getCloudPoints().get(0).getY());
+        assertEquals(2, trackedObject2.getCoordinates().size());
+        assertEquals(3.0451, trackedObject2.getCoordinates().get(0).getX());
+        assertEquals(-0.38171, trackedObject2.getCoordinates().get(0).getY());
 
         TrackedObject trackedObject3 = trackedObjects.get(2);
         assertEquals("Chair_Base_1", trackedObject3.getId());
         assertEquals("Chair Base", trackedObject3.getDescription());
         assertEquals(4, trackedObject3.getTime());
-        assertEquals(2, trackedObject3.getCloudPoints().size());
-        assertEquals(1.9834, trackedObject3.getCloudPoints().get(0).getX());
-        assertEquals(-1.0048, trackedObject3.getCloudPoints().get(0).getY());
+        assertEquals(2, trackedObject3.getCoordinates().size());
+        assertEquals(1.9834, trackedObject3.getCoordinates().get(0).getX());
+        assertEquals(-1.0048, trackedObject3.getCoordinates().get(0).getY());
 
         List<TrackedObject> remainLastTrackedObjects = workerTracker.getLastTrackedObjects();
         assertEquals(2, remainLastTrackedObjects.size());
