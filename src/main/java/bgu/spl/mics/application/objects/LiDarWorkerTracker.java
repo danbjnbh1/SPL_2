@@ -19,7 +19,7 @@ public class LiDarWorkerTracker {
     private final int frequency; // Time interval at which the worker operates
     private STATUS status; // Current status of the worker (e.g., UP, DOWN)
     private List<TrackedObject> lastTrackedObjects; // Last tracked objects
-    private final List<TrackedObject> lastFrame;
+    private List<TrackedObject> lastFrame;
     private final LiDarDataBase dataBase; // Reference to the LiDarDataBase
     private int currentTime;
 
@@ -87,14 +87,11 @@ public class LiDarWorkerTracker {
         List<StampedCloudPoints> listOfStampedCloudPoints = dataBase.getListOfStampedCloudPointsByTime(time);
         for (DetectedObject detectedObject : detectedObjects) {
             for (StampedCloudPoints stampedCloudPoint : listOfStampedCloudPoints) {
-                lastFrame.clear();
                 if (detectedObject.getId().equals(stampedCloudPoint.getId())) {
                     if (stampedCloudPoint.getId() == "ERROR") {
                         status = STATUS.ERROR;
                     } // ! check this
                     lastTrackedObjects.add(new TrackedObject(detectedObject.getId(), detectedObject.getDescription(),
-                            stampedCloudPoint.getTime(), stampedCloudPoint.getCloudPoints()));
-                    lastFrame.add(new TrackedObject(detectedObject.getId(), detectedObject.getDescription(),
                             stampedCloudPoint.getTime(), stampedCloudPoint.getCloudPoints()));
                     dataBase.incrementNumOfConsumedCloudPoints();
                 }
@@ -119,6 +116,10 @@ public class LiDarWorkerTracker {
 
     public String getName() {
         return name;
+    }
+
+    public void setLastFrame(List<TrackedObject> lastFrame) {
+        this.lastFrame = lastFrame;
     }
 
     public List<TrackedObject> getLastFrame() {

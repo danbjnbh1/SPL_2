@@ -13,6 +13,7 @@ public class Camera {
     private int currentTime;
     private STATUS status;
     private final List<StampedDetectedObjects> detectedObjectsList;
+    private StampedDetectedObjects lastFrame;
     CameraDataBase dataBase;
 
     public Camera(int id, int frequency, String key, CameraDataBase dataBase) {
@@ -54,7 +55,7 @@ public class Camera {
         }
     }
 
-    public StampedDetectedObjects getDetectedObjectsByTime() {
+    public StampedDetectedObjects getDetectedObjects() {
         for (StampedDetectedObjects stampedDetectedObjects : detectedObjectsList) {
             if (stampedDetectedObjects.getTime() + frequency == currentTime) {
                 return stampedDetectedObjects;
@@ -64,16 +65,12 @@ public class Camera {
         return null;
     }
 
-    public StampedDetectedObjects getCrashedLastDetectedObjects(int crashedTime) {
-        StampedDetectedObjects lastDetectedBeforeCrash = null;
-        for (StampedDetectedObjects stampedDetectedObjects : detectedObjectsList) {
-            if (stampedDetectedObjects.getTime() < crashedTime) {
-                lastDetectedBeforeCrash = stampedDetectedObjects;
-            } else if (stampedDetectedObjects.getTime() == crashedTime) {
-                break;
-            }
-        }
-        return lastDetectedBeforeCrash;
+    public void setLastFrame(StampedDetectedObjects lastFrame) {
+        this.lastFrame = lastFrame;
+    }
+
+    public StampedDetectedObjects getLastFrame() {
+        return lastFrame;
     }
 
     public String getName() {

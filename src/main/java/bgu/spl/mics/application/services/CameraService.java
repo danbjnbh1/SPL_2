@@ -46,14 +46,14 @@ public class CameraService extends MicroService {
             int currentTime = e.getTime();
             camera.updateTime(currentTime);
 
-            StampedDetectedObjects detectedObjectsToPublish = camera.getDetectedObjectsByTime();
+            StampedDetectedObjects detectedObjectsToPublish = camera.getDetectedObjects();
             String error = getDetectedError(detectedObjectsToPublish);
 
             if (error != null) {
                 camera.setStatus(STATUS.ERROR);
                 outputData.setFaultySensor(camera.getName());
                 outputData.setError(error);
-                outputData.setLastCameraFrame(camera.getName(), camera.getCrashedLastDetectedObjects(currentTime));
+                outputData.setLastCameraFrame(camera.getName(), camera.getLastFrame());
                 this.sendBroadcast(new CrashedBroadcast(currentTime));
                 terminate();
                 return;
@@ -61,6 +61,7 @@ public class CameraService extends MicroService {
 
             if (detectedObjectsToPublish != null) {
                 statisticalFolder.incrementDetectedObjects(detectedObjectsToPublish.getDetectedObjects().size());
+                camera.setLastFrame(detectedObjectsToPublish);
                 this.sendEvent(new DetectObjectsEvent(detectedObjectsToPublish));
             }
 
@@ -76,7 +77,7 @@ public class CameraService extends MicroService {
         });
 
         this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast e) -> {
-            outputData.setLastCameraFrame(getName(), camera.getCrashedLastDetectedObjects(e.getCrashedTime()));
+            outputData.setLastCameraFrame(camera.getName(), camera.getLastFrame());
             stop();
         });
     }

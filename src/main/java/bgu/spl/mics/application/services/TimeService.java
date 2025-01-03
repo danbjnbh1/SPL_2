@@ -50,7 +50,7 @@ public class TimeService extends MicroService {
             int currentTick = e.getTime();
             if (currentTick <= duration) {
                 try {
-                    Thread.sleep(tickTime * 1000);
+                    Thread.sleep(tickTime * 200);
                     System.out.println("Time service currentTick" + currentTick);
                 } catch (InterruptedException ex) {
                     ex.printStackTrace();

@@ -69,6 +69,7 @@ public class LiDarService extends MicroService {
 
             if (trackedObjects != null) {
                 statisticalFolder.incrementTrackedObjects(trackedObjects.size());
+                liDarWorkerTracker.setLastFrame(trackedObjects);
                 this.sendEvent(trackedObjectsEvent);
             }
 
@@ -106,7 +107,7 @@ public class LiDarService extends MicroService {
 
         for (TrackedObject trackedObject : trackedObjects) {
             if (trackedObject.getId() == "ERROR") {
-                return "Lidar " + trackedObject.getDescription();
+                return trackedObject.getDescription();
             }
         }
 
