@@ -51,11 +51,8 @@ public class LiDarWorkerTracker {
     }
 
     /**
-     * Generates TrackedObjectsEvent from the detected objects at the current time
-     * tick.
-     *
-     * @return A TrackedObjectsEvent containing tracked objects, or null if no data
-     *         is available.
+     * Generates a list of TrackedObjects from the detected objects at the current time tick.
+     * @return A list of TrackedObjects to publish.
      */
     public List<TrackedObject> getCurrentTrackedObjects() {
         List<TrackedObject> objectToSends = new ArrayList<>();
