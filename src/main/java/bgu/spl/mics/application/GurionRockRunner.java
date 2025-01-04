@@ -107,6 +107,7 @@ public class GurionRockRunner {
             // Shutdown the executor service and wait for all tasks to complete
             executorService.shutdown();
             executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            OutputWriter.writeOutput(configPath);
         } catch (Exception e) {
             e.printStackTrace();
         }
