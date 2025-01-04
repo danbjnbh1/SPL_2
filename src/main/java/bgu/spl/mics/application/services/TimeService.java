@@ -50,10 +50,10 @@ public class TimeService extends MicroService {
             int currentTick = e.getTime();
             if (currentTick <= duration) {
                 try {
-                    Thread.sleep(tickTime * 200);
+                    Thread.sleep(tickTime * 1000);
                     System.out.println("Time service currentTick" + currentTick);
                 } catch (InterruptedException ex) {
-                    ex.printStackTrace();
+                    stop();
                 }
                 currentTick++;
                 sendBroadcast(new TickBroadcast(currentTick));
@@ -66,9 +66,9 @@ public class TimeService extends MicroService {
 
         // Start the timer
         try {
-            Thread.sleep(tickTime * 200);
+            Thread.sleep(tickTime * 1000);
         } catch (InterruptedException ex) {
-            ex.printStackTrace();
+            stop();
         }
         sendBroadcast(new TickBroadcast(1));
         statisticalFolder.incrementSystemRuntime();
