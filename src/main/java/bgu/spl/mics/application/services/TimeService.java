@@ -48,7 +48,7 @@ public class TimeService extends MicroService {
 
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
             int currentTick = e.getTime();
-            if (currentTick <= duration) {
+            if (currentTick < duration) {
                 try {
                     Thread.sleep(tickTime * 1000);
                     System.out.println("Time service currentTick" + currentTick);
