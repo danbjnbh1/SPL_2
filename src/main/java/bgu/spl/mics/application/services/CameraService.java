@@ -59,7 +59,7 @@ public class CameraService extends MicroService {
                 return;
             }
 
-            if (detectedObjectsToPublish != null) {
+            if (detectedObjectsToPublish != null && !detectedObjectsToPublish.getDetectedObjects().isEmpty()) {
                 statisticalFolder.incrementDetectedObjects(detectedObjectsToPublish.getDetectedObjects().size());
                 camera.setLastFrame(detectedObjectsToPublish);
                 this.sendEvent(new DetectObjectsEvent(detectedObjectsToPublish));

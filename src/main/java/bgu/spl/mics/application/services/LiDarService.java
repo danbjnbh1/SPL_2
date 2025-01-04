@@ -65,7 +65,7 @@ public class LiDarService extends MicroService {
                 return;
             }
 
-            if (trackedObjects != null) {
+            if (trackedObjects != null && !trackedObjects.isEmpty()) {
                 TrackedObjectsEvent trackedObjectsEvent = new TrackedObjectsEvent(trackedObjects);
                 statisticalFolder.incrementTrackedObjects(trackedObjects.size());
                 liDarWorkerTracker.setLastFrame(trackedObjects);
@@ -92,6 +92,7 @@ public class LiDarService extends MicroService {
         });
 
         this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast e) -> {
+            System.out.println("Crashed Broadcast" + liDarWorkerTracker.getLastFrame().size());
             outputData.setLastLiDarWorkerTrackerFrame(liDarWorkerTracker.getName(),
                     liDarWorkerTracker.getLastFrame());
             stop();
