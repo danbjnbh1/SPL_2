@@ -107,7 +107,7 @@ public class LiDarService extends MicroService {
 
         for (TrackedObject trackedObject : trackedObjects) {
             if (trackedObject.getId() == "ERROR") {
-                return trackedObject.getDescription();
+                return "Sensor " + liDarWorkerTracker.getName() + " disconnected";
             }
         }
 
