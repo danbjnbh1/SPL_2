@@ -5,8 +5,8 @@ import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.PoseEvent;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.objects.ErrorOutputData;
 import bgu.spl.mics.application.objects.GPSIMU;
-import bgu.spl.mics.application.objects.OutputData;
 import bgu.spl.mics.application.objects.STATUS;
 
 /**
@@ -17,7 +17,7 @@ import bgu.spl.mics.application.objects.STATUS;
 public class PoseService extends MicroService {
 
     GPSIMU gpsimu;
-    OutputData outputData = OutputData.getInstance();
+    ErrorOutputData errorOutputData = ErrorOutputData.getInstance();
 
     /**
      * Constructor for PoseService.
@@ -53,7 +53,7 @@ public class PoseService extends MicroService {
         });
 
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast e) -> {
-            outputData.setPoses(gpsimu.getPosesUntilNow());
+            errorOutputData.setPoses(gpsimu.getPosesUntilNow());
             stop();
         });
     };

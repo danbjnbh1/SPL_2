@@ -1,52 +1,23 @@
 package bgu.spl.mics.application.objects;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class OutputData {
-    private static OutputData instance;
     private Statistics statistics;
     private Map<String, LandMark> landMarks;
-    private String error;
-    private String faultySensor;
-    private Map<String, StampedDetectedObjects> lastCamerasFrame;
-    private Map<String, List<TrackedObject>> lastLiDarWorkerTrackersFrame;
-    private List<Pose> poses;
 
     private static class OutputDataHolder {
-        private static OutputData instance = new OutputData();
+        private static final OutputData instance = new OutputData();
     }
 
     private OutputData() {
-        lastCamerasFrame = new ConcurrentHashMap<>();
-        lastLiDarWorkerTrackersFrame = new ConcurrentHashMap<>();
-        poses = new ArrayList<>();
+        statistics = new Statistics(0, 0, 0, 0);
+        landMarks = new ConcurrentHashMap<>();
     }
 
-    public static OutputData getInstance() {
+    public static synchronized OutputData getInstance() {
         return OutputDataHolder.instance;
-    }
-
-    public void setLastCameraFrame(String cameraKey, StampedDetectedObjects detectedObjects) {
-        lastCamerasFrame.putIfAbsent(cameraKey, detectedObjects);
-    }
-
-    public void setLastLiDarWorkerTrackerFrame(String liDarWorkerKey, List<TrackedObject> cloudPoints) {
-        lastLiDarWorkerTrackersFrame.putIfAbsent(liDarWorkerKey, cloudPoints);
-    }
-
-    public void setError(String error) {
-        this.error = error;
-    }
-
-    public void setFaultySensor(String faultySensor) {
-        this.faultySensor = faultySensor;
-    }
-
-    public void setPoses(List<Pose> poses) {
-        this.poses = poses;
     }
 
     public void setStatistics(Statistics statistics) {
@@ -56,6 +27,16 @@ public class OutputData {
     public void setLandMarks(Map<String, LandMark> landMarks) {
         this.landMarks = landMarks;
     }
+
+
+    public Statistics getStatistics() {
+        return statistics;
+    }
+
+    public Map<String, LandMark> getLandMarks() {
+        return landMarks;
+    }
+
 
     public static class Statistics {
         private int systemRuntime;
@@ -68,6 +49,22 @@ public class OutputData {
             this.numDetectedObjects = numDetectedObjects;
             this.numTrackedObjects = numTrackedObjects;
             this.numLandmarks = numLandmarks;
+        }
+
+        public int getSystemRuntime() {
+            return systemRuntime;
+        }
+
+        public int getNumDetectedObjects() {
+            return numDetectedObjects;
+        }
+
+        public int getNumTrackedObjects() {
+            return numTrackedObjects;
+        }
+
+        public int getNumLandmarks() {
+            return numLandmarks;
         }
     }
 }

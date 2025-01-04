@@ -8,8 +8,8 @@ import bgu.spl.mics.application.messages.DetectObjectsEvent;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
+import bgu.spl.mics.application.objects.ErrorOutputData;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
-import bgu.spl.mics.application.objects.OutputData;
 import bgu.spl.mics.application.objects.STATUS;
 import bgu.spl.mics.application.objects.StatisticalFolder;
 import bgu.spl.mics.application.objects.TrackedObject;
@@ -27,7 +27,7 @@ public class LiDarService extends MicroService {
 
     private final LiDarWorkerTracker liDarWorkerTracker;
     private final StatisticalFolder statisticalFolder = StatisticalFolder.getInstance();
-    private final OutputData outputData = OutputData.getInstance();
+    private final ErrorOutputData errorOutputData = ErrorOutputData.getInstance();
 
     /**
      * Constructor for LiDarService.
@@ -57,9 +57,9 @@ public class LiDarService extends MicroService {
 
             if (error != null) {
                 liDarWorkerTracker.setStatus(STATUS.ERROR);
-                outputData.setError(error);
-                outputData.setFaultySensor(liDarWorkerTracker.getName());
-                outputData.setLastLiDarWorkerTrackerFrame(getName(), liDarWorkerTracker.getLastFrame());
+                errorOutputData.setError(error);
+                errorOutputData.setFaultySensor(liDarWorkerTracker.getName());
+                errorOutputData.setLastLiDarWorkerTrackerFrame(getName(), liDarWorkerTracker.getLastFrame());
                 this.sendBroadcast(new CrashedBroadcast(e.getTime()));
                 terminate();
                 return;
@@ -92,7 +92,7 @@ public class LiDarService extends MicroService {
         });
 
         this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast e) -> {
-            outputData.setLastLiDarWorkerTrackerFrame(liDarWorkerTracker.getName(),
+            errorOutputData.setLastLiDarWorkerTrackerFrame(liDarWorkerTracker.getName(),
                     liDarWorkerTracker.getLastFrame());
             stop();
         });
