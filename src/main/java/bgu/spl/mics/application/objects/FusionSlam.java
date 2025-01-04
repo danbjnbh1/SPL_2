@@ -117,4 +117,8 @@ public class FusionSlam {
     public List<LandMark> getLandmarks() {
         return landmarks;
     }
+
+    public List<Pose> getPoses() {
+        return poses;
+    }
 }
