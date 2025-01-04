@@ -92,7 +92,6 @@ public class LiDarService extends MicroService {
         });
 
         this.subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast e) -> {
-            System.out.println("Crashed Broadcast" + liDarWorkerTracker.getLastFrame().size());
             outputData.setLastLiDarWorkerTrackerFrame(liDarWorkerTracker.getName(),
                     liDarWorkerTracker.getLastFrame());
             stop();
