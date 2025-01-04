@@ -17,7 +17,6 @@ import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.GPSIMU;
 import bgu.spl.mics.application.objects.LiDarDataBase;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
-import bgu.spl.mics.application.objects.StatisticalFolder;
 import bgu.spl.mics.application.services.CameraService;
 import bgu.spl.mics.application.services.FusionSlamService;
 import bgu.spl.mics.application.services.LiDarService;
@@ -108,16 +107,7 @@ public class GurionRockRunner {
             // Shutdown the executor service and wait for all tasks to complete
             executorService.shutdown();
             executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-
-            System.out.println(StatisticalFolder.getInstance().getNumDetectedObjects());
-            System.out.println(StatisticalFolder.getInstance().getNumLandmarks());
-            System.out.println(StatisticalFolder.getInstance().getNumTrackedObjects());
-            System.out.println(StatisticalFolder.getInstance().getSystemRuntime());
             OutputWriter.writeOutput(configPath);
-
-            // TODO: Parse configuration file.
-            // TODO: Initialize system components and services.
-            // TODO: Start the simulation.
         } catch (Exception e) {
             e.printStackTrace();
         }

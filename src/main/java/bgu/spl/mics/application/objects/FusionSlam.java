@@ -14,6 +14,7 @@ import java.util.List;
 public class FusionSlam {
     private final List<LandMark> landmarks = new ArrayList<>();
     private final List<Pose> poses = new ArrayList<>();
+    private List<TrackedObject> waitingPoseTrackedObjects = new ArrayList<>();
 
     // Singleton instance holder
     private static class FusionSlamHolder {
@@ -24,12 +25,6 @@ public class FusionSlam {
         return FusionSlamHolder.instance;
     }
 
-    public void addPose(Pose pose) {
-        poses.add(pose);
-    }
-
-    // ! check about what if qw get the objects before we have the pose, can
-    // happen??
     public void processTrackedObjects(List<TrackedObject> trackedObjects) {
         for (TrackedObject trackedObject : trackedObjects) {
             LandMark existingLandMark = getLandMark(trackedObject);
@@ -39,6 +34,23 @@ public class FusionSlam {
                 addLandMark(trackedObject);
             }
         }
+    }
+
+    public void processPose(Pose pose) {
+        poses.add(pose);
+        List<TrackedObject> trackedObjects = new ArrayList<>();
+        List<TrackedObject> newWaitingPoseObjects = new ArrayList<>();
+        for (TrackedObject trackedObject : waitingPoseTrackedObjects) {
+            if (trackedObject.getTime() <= pose.getTime()) {
+                trackedObjects.add(trackedObject);
+                System.out.println("Adding object with id: " + trackedObject.getId());
+            } else {
+                newWaitingPoseObjects.add(trackedObject);
+            }
+
+        }
+        waitingPoseTrackedObjects = newWaitingPoseObjects;
+        processTrackedObjects(trackedObjects);
     }
 
     private LandMark getLandMark(TrackedObject trackedObject) {
@@ -51,7 +63,12 @@ public class FusionSlam {
     }
 
     private void updateLandMark(TrackedObject trackedObject, LandMark landmark) {
-        List<CloudPoint> newCloudPoints = getObjectGlobalPoints(trackedObject);
+        Pose pose = getPoseByTime(trackedObject.getTime());
+        if (pose == null) {
+            waitingPoseTrackedObjects.add(trackedObject);
+            return;
+        }
+        List<CloudPoint> newCloudPoints = getObjectGlobalPoints(trackedObject, pose);
         List<CloudPoint> existingCloudPoints = landmark.getCoordinates();
         List<CloudPoint> updatedCloudPoints = new ArrayList<>();
 
@@ -76,7 +93,12 @@ public class FusionSlam {
     }
 
     private void addLandMark(TrackedObject trackedObject) {
-        List<CloudPoint> globalCloudPoints = getObjectGlobalPoints(trackedObject);
+        Pose pose = getPoseByTime(trackedObject.getTime());
+        if (pose == null) {
+            waitingPoseTrackedObjects.add(trackedObject);
+            return;
+        }
+        List<CloudPoint> globalCloudPoints = getObjectGlobalPoints(trackedObject, pose);
         LandMark landMark = new LandMark(trackedObject.getId(), trackedObject.getDescription(), globalCloudPoints);
         landmarks.add(landMark);
     }
@@ -94,8 +116,7 @@ public class FusionSlam {
         return new CloudPoint(globalX, globalY);
     }
 
-    private List<CloudPoint> getObjectGlobalPoints(TrackedObject trackedObject) {
-        Pose pose = getPoseByTime(trackedObject.getTime());
+    private List<CloudPoint> getObjectGlobalPoints(TrackedObject trackedObject, Pose pose) {
         List<CloudPoint> localPoints = trackedObject.getCoordinates();
 
         List<CloudPoint> globalPoints = new ArrayList<>();

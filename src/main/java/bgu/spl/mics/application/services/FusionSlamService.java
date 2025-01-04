@@ -73,7 +73,7 @@ public class FusionSlamService extends MicroService {
 
         this.subscribeEvent(PoseEvent.class, (PoseEvent e) -> {
             Pose pose = e.getPose();
-            fusionSlam.addPose(pose);
+            fusionSlam.processPose(pose);
             complete(e, true);
         });
     }

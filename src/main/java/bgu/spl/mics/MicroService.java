@@ -149,6 +149,7 @@ public abstract class MicroService implements Runnable {
      */
     protected final void terminate() {
         this.terminated = true;
+        Thread.currentThread().interrupt();
     }
 
     /**
@@ -162,10 +163,6 @@ public abstract class MicroService implements Runnable {
     public final void stop() {
         sendBroadcast(new TerminatedBroadcast(getClass()));
         terminate();
-        Thread currentThread = Thread.currentThread();
-        if (currentThread != null && currentThread.isAlive()) {
-            currentThread.interrupt();
-        }
     }
 
     /**
