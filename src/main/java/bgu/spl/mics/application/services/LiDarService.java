@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
@@ -28,6 +29,20 @@ public class LiDarService extends MicroService {
     private final LiDarWorkerTracker liDarWorkerTracker;
     private final StatisticalFolder statisticalFolder = StatisticalFolder.getInstance();
     private final ErrorOutputData errorOutputData = ErrorOutputData.getInstance();
+
+    /**
+     * Constructor for LiDarService.
+     *
+     * @param LiDarWorkerTracker A LiDAR Tracker worker object that this service
+     *                           will use to process data.
+     * @param latch              the CountDownLatch used to synchronize the
+     *                           initialization of services
+     * 
+     */
+    public LiDarService(LiDarWorkerTracker liDarWorkerTracker, CountDownLatch latch) {
+        super("LidarWorker" + liDarWorkerTracker.getId(), latch);
+        this.liDarWorkerTracker = liDarWorkerTracker;
+    }
 
     /**
      * Constructor for LiDarService.

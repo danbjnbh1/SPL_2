@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import bgu.spl.mics.MicroService;
@@ -26,6 +27,21 @@ public class FusionSlamService extends MicroService {
     private final AtomicInteger terminationCounter;
     private final int totalSensorsNum;
     private StatisticalFolder statisticalFolder = StatisticalFolder.getInstance();
+
+    /**
+     * Constructor for FusionSlamService.
+     *
+     * @param fusionSlam The FusionSLAM object responsible for managing the global
+     *                   map.
+     * @param latch      the CountDownLatch used to synchronize the initialization
+     *                   of services
+     */
+    public FusionSlamService(FusionSlam fusionSlam, int totalSensorsNum, CountDownLatch latch) {
+        super("FusionSlamService", latch);
+        this.fusionSlam = fusionSlam;
+        this.terminationCounter = new AtomicInteger(0);
+        this.totalSensorsNum = totalSensorsNum;
+    }
 
     /**
      * Constructor for FusionSlamService.

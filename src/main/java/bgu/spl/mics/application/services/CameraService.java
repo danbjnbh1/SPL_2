@@ -1,5 +1,7 @@
 package bgu.spl.mics.application.services;
 
+import java.util.concurrent.CountDownLatch;
+
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
@@ -23,6 +25,17 @@ public class CameraService extends MicroService {
     private final Camera camera;
     private final StatisticalFolder statisticalFolder = StatisticalFolder.getInstance();
     private final ErrorOutputData errorOutputData = ErrorOutputData.getInstance();
+
+    /**
+     * Constructor for CameraService.
+     *
+     * @param camera The Camera object that this service will use to detect objects.
+     * @param latch  the CountDownLatch used to synchronize the initialization of services
+     */
+    public CameraService(Camera camera, CountDownLatch latch) {
+        super("CameraService" + camera.getId(), latch);
+        this.camera = camera;
+    }
 
     /**
      * Constructor for CameraService.

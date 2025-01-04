@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -55,15 +56,19 @@ public class GurionRockRunner {
             String cameraDataPath = configAbsolutePath.resolve(config.getCameras().getCameraDatasPath()).toString();
             String lidarDataPath = configAbsolutePath.resolve(config.getLidars().getLidarsDataPath()).toString();
 
+            // +2 for PoseService and FusionSlamService
+            CountDownLatch latch = new CountDownLatch(config.getCameras().getCamerasConfigurations().size()
+                    + config.getLidars().getLidarConfigurations().size() + 2);
+
             GPSIMU gpsimu = new GPSIMU(poseJsonFilePath);
-            MicroService poseService = new PoseService(gpsimu);
+            MicroService poseService = new PoseService(gpsimu, latch);
 
             List<MicroService> cameraServices = new ArrayList<>();
             CameraDataBase cameraDataBase = new CameraDataBase(cameraDataPath);
             for (CameraConfiguration cameraConfig : config.getCameras().getCamerasConfigurations()) {
                 Camera camera = new Camera(cameraConfig.getId(), cameraConfig.getFrequency(),
                         cameraConfig.getCameraKey(), cameraDataBase);
-                MicroService cameraService = new CameraService(camera);
+                MicroService cameraService = new CameraService(camera, latch);
                 cameraServices.add(cameraService);
             }
 
@@ -72,18 +77,16 @@ public class GurionRockRunner {
             for (LidarConfiguration lidarConfig : config.getLidars().getLidarConfigurations()) {
                 LiDarWorkerTracker lidar = new LiDarWorkerTracker(lidarConfig.getId(), lidarConfig.getFrequency(),
                         lidarDataBase);
-                MicroService lidarService = new LiDarService(lidar);
+                MicroService lidarService = new LiDarService(lidar, latch);
                 lidarServices.add(lidarService);
             }
 
             int totalSensorsNum = cameraServices.size() + lidarServices.size() + 1; // +1 for GPSIMU
-            MicroService fusionSlamService = new FusionSlamService(FusionSlam.getInstance(), totalSensorsNum);
+            MicroService fusionSlamService = new FusionSlamService(FusionSlam.getInstance(), totalSensorsNum, latch);
 
-            MicroService timeService = new TimeService(config.getTickTime(), config.getDuration());
-
-            // Create a thread pool
+            // +3 for PoseService, FusionSlamService, and TimeService
             ExecutorService executorService = Executors
-                    .newFixedThreadPool(cameraServices.size() + lidarServices.size() + 3); // +3 for GPSIMU, FusionSlam, and TimeService
+                    .newFixedThreadPool(cameraServices.size() + lidarServices.size() + 3);
 
             // Submit the pose service
             executorService.submit(poseService);
@@ -101,6 +104,7 @@ public class GurionRockRunner {
             // Submit the FusionSlam service
             executorService.submit(fusionSlamService);
 
+            MicroService timeService = new TimeService(config.getTickTime(), config.getDuration(), latch);
             // Submit the TimeService
             executorService.submit(timeService);
 

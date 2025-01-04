@@ -1,5 +1,7 @@
 package bgu.spl.mics.application.services;
 
+import java.util.concurrent.CountDownLatch;
+
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.PoseEvent;
@@ -18,6 +20,18 @@ public class PoseService extends MicroService {
 
     GPSIMU gpsimu;
     ErrorOutputData errorOutputData = ErrorOutputData.getInstance();
+
+    /**
+     * Constructor for PoseService.
+     *
+     * @param gpsimu The GPSIMU object that provides the robot's pose data.
+     * @param latch  the CountDownLatch used to synchronize the initialization of services
+     */
+    public PoseService(GPSIMU gpsimu, CountDownLatch latch) {
+        super("PoseService", latch);
+        this.gpsimu = gpsimu;
+
+    }
 
     /**
      * Constructor for PoseService.

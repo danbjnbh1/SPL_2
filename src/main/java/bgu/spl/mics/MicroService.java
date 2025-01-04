@@ -1,6 +1,7 @@
 package bgu.spl.mics;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
 
@@ -29,6 +30,19 @@ public abstract class MicroService implements Runnable {
     private boolean terminated = false;
     private final String name;
     protected final MessageBus messageBus;
+    protected final CountDownLatch latch;
+
+    /**
+     * @param name  the micro-service name (used mainly for debugging purposes -
+     *              does not have to be unique)
+     * @param latch the CountDownLatch used to synchronize the initialization of
+     *              services
+     */
+    public MicroService(String name, CountDownLatch latch) {
+        this.name = name;
+        messageBus = MessageBusImpl.getInstance();
+        this.latch = latch;
+    }
 
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
@@ -37,6 +51,7 @@ public abstract class MicroService implements Runnable {
     public MicroService(String name) {
         this.name = name;
         messageBus = MessageBusImpl.getInstance();
+        latch = null;
     }
 
     /**
@@ -171,9 +186,14 @@ public abstract class MicroService implements Runnable {
      */
     @Override
     public final void run() {
+        System.out.println(this.getName() + " started");
         messageBus.register(this);
         initialize();
-        System.out.println(this.getName() + " started");
+        System.out.println(this.getName() + " initialized");
+
+        if (latch != null) {
+            latch.countDown();
+        }
         while (!terminated) {
             try {
                 Message message = messageBus.awaitMessage(this);

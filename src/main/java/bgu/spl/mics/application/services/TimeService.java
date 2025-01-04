@@ -1,5 +1,7 @@
 package bgu.spl.mics.application.services;
 
+import java.util.concurrent.CountDownLatch;
+
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
@@ -22,6 +24,20 @@ public class TimeService extends MicroService {
      *
      * @param TickTime The duration of each tick in milliseconds.
      * @param Duration The total number of ticks before the service terminates.
+     * @param latch    the CountDownLatch used to synchronize the initialization of
+     *                 services
+     */
+    public TimeService(int TickTime, int Duration, CountDownLatch latch) {
+        super("TimeService", latch);
+        this.tickTime = TickTime;
+        this.duration = Duration;
+    }
+
+    /**
+     * Constructor for TimeService.
+     *
+     * @param TickTime The duration of each tick in milliseconds.
+     * @param Duration The total number of ticks before the service terminates.
      */
     public TimeService(int TickTime, int Duration) {
         super("TimeService");
@@ -36,6 +52,15 @@ public class TimeService extends MicroService {
      */
     @Override
     protected void initialize() {
+
+        try {
+            // Wait for all other services to complete their initialization
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return;
+        }
+
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast e) -> {
             if (e.getServiceClass() == FusionSlamService.class) {
                 stop();
@@ -64,7 +89,7 @@ public class TimeService extends MicroService {
             }
         });
 
-        // Start the timer
+        //Start the timer
         try {
             Thread.sleep(tickTime * 1000);
         } catch (InterruptedException ex) {
