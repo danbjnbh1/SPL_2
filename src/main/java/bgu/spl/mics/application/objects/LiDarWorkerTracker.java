@@ -83,15 +83,11 @@ public class LiDarWorkerTracker {
 
         int time = stampedDetectedObjects.getTime();
         List<DetectedObject> detectedObjects = stampedDetectedObjects.getDetectedObjects();
-
         List<StampedCloudPoints> listOfStampedCloudPoints = dataBase.getListOfStampedCloudPointsByTime(time);
         for (DetectedObject detectedObject : detectedObjects) {
             for (StampedCloudPoints stampedCloudPoint : listOfStampedCloudPoints) {
-                if (detectedObject.getId().equals(stampedCloudPoint.getId())) {
-                    if (stampedCloudPoint.getId() == "ERROR") {
-                        status = STATUS.ERROR;
-                    } // ! check this
-                    lastTrackedObjects.add(new TrackedObject(detectedObject.getId(), detectedObject.getDescription(),
+                if (detectedObject.getId().equals(stampedCloudPoint.getId()) || stampedCloudPoint.getId().equals("ERROR")) {
+                    lastTrackedObjects.add(new TrackedObject(stampedCloudPoint.getId(), detectedObject.getDescription(),
                             stampedCloudPoint.getTime(), stampedCloudPoint.getCloudPoints()));
                     dataBase.incrementNumOfConsumedCloudPoints();
                 }

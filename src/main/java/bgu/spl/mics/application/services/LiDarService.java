@@ -52,9 +52,7 @@ public class LiDarService extends MicroService {
         this.subscribeBroadcast(TickBroadcast.class, (TickBroadcast e) -> {
             liDarWorkerTracker.updateTime(e.getTime());
             liDarWorkerTracker.updateStatus();
-            TrackedObjectsEvent trackedObjectsEvent = new TrackedObjectsEvent(
-                    liDarWorkerTracker.getCurrentTrackedObjects());
-            List<TrackedObject> trackedObjects = trackedObjectsEvent.getTrackedObjects();
+            List<TrackedObject> trackedObjects = liDarWorkerTracker.getCurrentTrackedObjects();
             String error = getDetectedError(trackedObjects);
 
             if (error != null) {
@@ -68,6 +66,7 @@ public class LiDarService extends MicroService {
             }
 
             if (trackedObjects != null) {
+                TrackedObjectsEvent trackedObjectsEvent = new TrackedObjectsEvent(trackedObjects);
                 statisticalFolder.incrementTrackedObjects(trackedObjects.size());
                 liDarWorkerTracker.setLastFrame(trackedObjects);
                 this.sendEvent(trackedObjectsEvent);
@@ -106,7 +105,7 @@ public class LiDarService extends MicroService {
         }
 
         for (TrackedObject trackedObject : trackedObjects) {
-            if (trackedObject.getId() == "ERROR") {
+            if (trackedObject.getId().equals("ERROR")) {
                 return "Sensor " + liDarWorkerTracker.getName() + " disconnected";
             }
         }
