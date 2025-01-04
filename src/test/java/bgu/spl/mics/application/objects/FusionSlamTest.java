@@ -31,7 +31,7 @@ public class FusionSlamTest {
 
         // Add a corresponding Pose
         Pose pose = new Pose(1, 0.0, 0.0, 0.0);
-        fusionSlam.addPose(pose);
+        fusionSlam.processPose(pose);
 
         fusionSlam.processTrackedObjects(trackedObjects);
 
@@ -60,7 +60,7 @@ public class FusionSlamTest {
 
         // Add a corresponding Pose
         Pose pose = new Pose(1, 0.0, 0.0, 0.0);
-        fusionSlam.addPose(pose);
+        fusionSlam.processPose(pose);
 
         fusionSlam.processTrackedObjects(trackedObjects);
 
