@@ -1,7 +1,4 @@
 package bgu.spl.mics.application.objects;
-
-import com.google.gson.annotations.Expose;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
