@@ -78,6 +78,23 @@ public class LiDarWorkerTracker {
         this.currentTime = currentTime;
     }
 
+    /**
+     * @inv: lastTrackedObjects != null && dataBase != null
+     *       && dataBase.getNumOfConsumedCloudPoints().get() >= 0
+     *       && dataBase.getCloudPoints().size() >=
+     *       dataBase.getNumOfConsumedCloudPoints().get()
+     *       && currentTime >= 0
+     *
+     * @PRE: e != null && e.getDetectedObjects() != null
+     *       && e.getDetectedObjects().getDetectedObjects() != null
+     *       &&
+     *       dataBase.getListOfStampedCloudPointsByTime(e.getDetectedObjects().getTime())
+     *       != null
+     *
+     * @POST: lastTrackedObjects.size() >= @PRE(lastTrackedObjects.size())
+     *        && dataBase.getNumOfConsumedCloudPoints().get()
+     *        >= @PRE(dataBase.getNumOfConsumedCloudPoints().get())
+     */
     public void processDetectedObjects(DetectObjectsEvent e) {
         StampedDetectedObjects stampedDetectedObjects = e.getDetectedObjects();
 
@@ -86,7 +103,8 @@ public class LiDarWorkerTracker {
         List<StampedCloudPoints> listOfStampedCloudPoints = dataBase.getListOfStampedCloudPointsByTime(time);
         for (DetectedObject detectedObject : detectedObjects) {
             for (StampedCloudPoints stampedCloudPoint : listOfStampedCloudPoints) {
-                if (detectedObject.getId().equals(stampedCloudPoint.getId()) || stampedCloudPoint.getId().equals("ERROR")) {
+                if (detectedObject.getId().equals(stampedCloudPoint.getId())
+                        || stampedCloudPoint.getId().equals("ERROR")) {
                     lastTrackedObjects.add(new TrackedObject(stampedCloudPoint.getId(), detectedObject.getDescription(),
                             stampedCloudPoint.getTime(), stampedCloudPoint.getCloudPoints()));
                     dataBase.incrementNumOfConsumedCloudPoints();

@@ -25,6 +25,19 @@ public class FusionSlam {
         return FusionSlamHolder.instance;
     }
 
+    /**
+     * @inv: landmarks != null
+     *       && trackedObjects != null
+     *       && waitingPoseTrackedObjects != null
+     *
+     * @PRE: trackedObjects != null
+     *       && for every TrackedObject t in trackedObjects: t.getId() != null &&
+     *       t.getCoordinates() != null
+     *
+     * @POST: landmarks.size() >= @PRE(landmarks.size())
+     *        && waitingPoseTrackedObjects.size()
+     *        <= @PRE(waitingPoseTrackedObjects.size())
+     */
     public void processTrackedObjects(List<TrackedObject> trackedObjects) {
         for (TrackedObject trackedObject : trackedObjects) {
             LandMark existingLandMark = getLandMark(trackedObject);
@@ -141,5 +154,9 @@ public class FusionSlam {
 
     public List<Pose> getPoses() {
         return poses;
+    }
+
+    public List<TrackedObject> getWaitingPoseTrackedObjects() {
+        return waitingPoseTrackedObjects;
     }
 }

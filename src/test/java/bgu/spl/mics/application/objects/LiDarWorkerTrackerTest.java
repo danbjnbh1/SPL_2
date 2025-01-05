@@ -8,6 +8,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import bgu.spl.mics.application.messages.DetectObjectsEvent;
+
 public class LiDarWorkerTrackerTest {
 
     private LiDarWorkerTracker workerTracker;
@@ -18,6 +20,8 @@ public class LiDarWorkerTrackerTest {
         // Initialize the LiDarDataBase instance with the path to the JSON file
         dataBase = LiDarDataBase.getInstance("src/test/resources/lidar_data.json");
         workerTracker = new LiDarWorkerTracker(1, 5, dataBase);
+        workerTracker.getLastTrackedObjects().clear(); // Clear last tracked objects before each test
+        dataBase.getNumOfConsumedCloudPoints().set(0); // Reset consumed cloud points before each test
 
         // Add some initial tracked objects
         List<CloudPoint> cloudPoints1 = new ArrayList<>();
@@ -43,7 +47,8 @@ public class LiDarWorkerTrackerTest {
         List<CloudPoint> cloudPoints5 = new ArrayList<>();
         cloudPoints5.add(new CloudPoint(0.73042, -1.1781));
         cloudPoints5.add(new CloudPoint(0.49003, -1.1433));
-        workerTracker.getLastTrackedObjects().add(new TrackedObject("Circular_Base_1", "Circular Base", 6, cloudPoints5));
+        workerTracker.getLastTrackedObjects()
+                .add(new TrackedObject("Circular_Base_1", "Circular Base", 6, cloudPoints5));
     }
 
     @Test
@@ -89,5 +94,71 @@ public class LiDarWorkerTrackerTest {
         TrackedObject remainObject2 = remainLastTrackedObjects.get(1);
         assertEquals("Circular_Base_1", remainObject2.getId());
 
+    }
+
+    // new tests
+
+    @Test
+    public void testProcessDetectedObjects_AddNewDetectedObject() {
+        // Arrange
+        List<DetectedObject> detectedObjects = new ArrayList<>();
+        detectedObjects.add(new DetectedObject("1", "Test Object"));
+        StampedDetectedObjects stampedDetectedObjects = new StampedDetectedObjects(detectedObjects, 1);
+        DetectObjectsEvent event = new DetectObjectsEvent(stampedDetectedObjects);
+
+        // Preconditions
+        assertNotNull(event, "The event should not be null");
+        assertNotNull(event.getDetectedObjects(), "The detected objects should not be null");
+        assertNotNull(event.getDetectedObjects().getDetectedObjects(),
+                "The list of detected objects should not be null");
+        assertNotNull(dataBase.getListOfStampedCloudPointsByTime(event.getDetectedObjects().getTime()),
+                "The list of stamped cloud points should not be null");
+
+        int initialLastTrackedObjectsSize = workerTracker.getLastTrackedObjects().size();
+        int initialNumOfConsumedCloudPoints = dataBase.getNumOfConsumedCloudPoints().get();
+
+        // Act
+        workerTracker.processDetectedObjects(event);
+
+        // Postconditions
+        assertTrue(workerTracker.getLastTrackedObjects().size() >= initialLastTrackedObjectsSize,
+                "The size of last tracked objects should not decrease");
+        assertTrue(dataBase.getNumOfConsumedCloudPoints().get() >= initialNumOfConsumedCloudPoints,
+                "The number of consumed cloud points should not decrease");
+    }
+
+    @Test
+    public void testProcessDetectedObjects_UpdateExistingDetectedObject() {
+        // Arrange
+        List<DetectedObject> detectedObjects = new ArrayList<>();
+        detectedObjects.add(new DetectedObject("1", "Test Object"));
+        StampedDetectedObjects stampedDetectedObjects = new StampedDetectedObjects(detectedObjects, 1);
+        DetectObjectsEvent event = new DetectObjectsEvent(stampedDetectedObjects);
+
+        // Add an existing tracked object
+        List<CloudPoint> cloudPoints = new ArrayList<>();
+        cloudPoints.add(new CloudPoint(1.0, 1.0));
+        TrackedObject trackedObject = new TrackedObject("1", "Test Object", 1, cloudPoints);
+        workerTracker.getLastTrackedObjects().add(trackedObject);
+
+        // Preconditions
+        assertNotNull(event, "The event should not be null");
+        assertNotNull(event.getDetectedObjects(), "The detected objects should not be null");
+        assertNotNull(event.getDetectedObjects().getDetectedObjects(),
+                "The list of detected objects should not be null");
+        assertNotNull(dataBase.getListOfStampedCloudPointsByTime(event.getDetectedObjects().getTime()),
+                "The list of stamped cloud points should not be null");
+
+        int initialLastTrackedObjectsSize = workerTracker.getLastTrackedObjects().size();
+        int initialNumOfConsumedCloudPoints = dataBase.getNumOfConsumedCloudPoints().get();
+
+        // Act
+        workerTracker.processDetectedObjects(event);
+
+        // Postconditions
+        assertTrue(workerTracker.getLastTrackedObjects().size() >= initialLastTrackedObjectsSize,
+                "The size of last tracked objects should not decrease");
+        assertTrue(dataBase.getNumOfConsumedCloudPoints().get() >= initialNumOfConsumedCloudPoints,
+                "The number of consumed cloud points should not decrease");
     }
 }
