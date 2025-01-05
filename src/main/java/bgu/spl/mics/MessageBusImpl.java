@@ -35,7 +35,19 @@ public class MessageBusImpl implements MessageBus {
 	public static MessageBusImpl getInstance() {
 		return MessageBusImplHolder.instance;
 	}
-
+	    /**
+     * @inv: eventSubscriptions != null
+     *       && broadcastSubscriptions != null
+     *       && microServiceQueues != null
+     *       && eventFutures != null
+     *       && futureServiceMap != null
+     *       && roundRobinCounters != null
+     *
+     * @PRE: type != null && m != null
+     *
+     * @POST: eventSubscriptions.get(type).contains(m)
+     *        && roundRobinCounters.containsKey(type)
+     */
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
 		eventSubscriptions.putIfAbsent(type, new ConcurrentLinkedQueue<>());
@@ -43,12 +55,37 @@ public class MessageBusImpl implements MessageBus {
 		roundRobinCounters.putIfAbsent(type, new AtomicInteger(0));
 	}
 
+	/**
+     * @inv: eventSubscriptions != null
+     *       && broadcastSubscriptions != null
+     *       && microServiceQueues != null
+     *       && eventFutures != null
+     *       && futureServiceMap != null
+     *       && roundRobinCounters != null
+     *
+     * @PRE: type != null && m != null
+     *
+     * @POST: broadcastSubscriptions.get(type).contains(m)
+     */
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
 		broadcastSubscriptions.putIfAbsent(type, new ConcurrentLinkedQueue<>());
 		broadcastSubscriptions.get(type).add(m);
 	}
 
+	/**
+     * @inv: eventSubscriptions != null
+     *       && broadcastSubscriptions != null
+     *       && microServiceQueues != null
+     *       && eventFutures != null
+     *       && futureServiceMap != null
+     *       && roundRobinCounters != null
+     *
+     * @PRE: e != null && result != null
+     *
+     * @POST: !eventFutures.containsKey(e)
+     *        && !futureServiceMap.containsKey(future)
+     */
 	@Override
 	public <T> void complete(Event<T> e, T result) {
 		Future<T> future = eventFutures.remove(e);
@@ -58,7 +95,19 @@ public class MessageBusImpl implements MessageBus {
 		}
 
 	}
-
+	/**
+     * @inv: eventSubscriptions != null
+     *       && broadcastSubscriptions != null
+     *       && microServiceQueues != null
+     *       && eventFutures != null
+     *       && futureServiceMap != null
+     *       && roundRobinCounters != null
+     *
+     * @PRE: b != null
+     *
+     * @POST: for each MicroService m in broadcastSubscriptions.get(b.getClass()):
+     *        microServiceQueues.get(m).contains(b)
+     */
 	@Override
 	public void sendBroadcast(Broadcast b) {
 		Class<? extends Broadcast> type = b.getClass();
@@ -70,7 +119,21 @@ public class MessageBusImpl implements MessageBus {
 		}
 
 	}
-
+	/**
+     * @inv: eventSubscriptions != null
+     *       && broadcastSubscriptions != null
+     *       && microServiceQueues != null
+     *       && eventFutures != null
+     *       && futureServiceMap != null
+     *       && roundRobinCounters != null
+     *
+     * @PRE: e != null
+     *
+     * @POST: if subscribers != null && !subscribers.isEmpty():
+     *        eventFutures.containsKey(e)
+     *        && futureServiceMap.containsKey(future)
+     *        && microServiceQueues.get(m).contains(e)
+     */
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
 		Class<? extends Event> type = e.getClass();
@@ -88,11 +151,41 @@ public class MessageBusImpl implements MessageBus {
 		return null;
 	}
 
+	/**
+     * @inv: eventSubscriptions != null
+     *       && broadcastSubscriptions != null
+     *       && microServiceQueues != null
+     *       && eventFutures != null
+     *       && futureServiceMap != null
+     *       && roundRobinCounters != null
+     *
+     * @PRE: m != null
+     *
+     * @POST: microServiceQueues.containsKey(m)
+     */
 	@Override
 	public void register(MicroService m) {
 		microServiceQueues.putIfAbsent(m, new LinkedBlockingQueue<>());
 	}
 
+	/**
+     * @inv: eventSubscriptions != null
+     *       && broadcastSubscriptions != null
+     *       && microServiceQueues != null
+     *       && eventFutures != null
+     *       && futureServiceMap != null
+     *       && roundRobinCounters != null
+     *
+     * @PRE: m != null
+     *
+     * @POST: !microServiceQueues.containsKey(m)
+     *        && for each queue in eventSubscriptions.values():
+     *           !queue.contains(m)
+     *        && for each queue in broadcastSubscriptions.values():
+     *           !queue.contains(m)
+     *        && for each entry in eventFutures.entrySet():
+     *           futureServiceMap.get(entry.getValue()) != m
+     */
 	@Override
 	public synchronized void unregister(MicroService m) {
 
@@ -103,6 +196,19 @@ public class MessageBusImpl implements MessageBus {
 		eventFutures.entrySet().removeIf(entry -> futureServiceMap.get(entry.getValue()) == m);
 	}
 
+	
+	 /**
+     * @inv: eventSubscriptions != null
+     *       && broadcastSubscriptions != null
+     *       && microServiceQueues != null
+     *       && eventFutures != null
+     *       && futureServiceMap != null
+     *       && roundRobinCounters != null
+     *
+     * @PRE: m != null && timeout > 0 && unit != null
+     *
+     * @POST: returns a Message from the queue of m or throws TimeoutException
+     */
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
 		BlockingQueue<Message> queue = microServiceQueues.get(m);
