@@ -19,9 +19,11 @@ import com.google.gson.reflect.TypeToken;
  * tracked objects.
  */
 public class LiDarDataBase {
+    private static String path;
 
-    // Singleton instance
-    private static LiDarDataBase instance;
+    private static class LiDarDataBaseHolder {
+        private static final LiDarDataBase instance = new LiDarDataBase(path);
+    }
 
     // List to hold parsed LiDAR data
     private List<StampedCloudPoints> cloudPoints;
@@ -73,14 +75,17 @@ public class LiDarDataBase {
     /**
      * Returns the singleton instance of LiDarDataBase.
      *
-     * @param filePath The path to the LiDAR data file.
      * @return The singleton instance of LiDarDataBase.
      */
-    public static synchronized LiDarDataBase getInstance(String filePath) {
-        if (instance == null) {
-            instance = new LiDarDataBase(filePath);
+    public static LiDarDataBase getInstance() {
+        if (path == null) {
+            throw new IllegalStateException("LiDarDataBase has not been initialized.");
         }
-        return instance;
+        return LiDarDataBaseHolder.instance;
+    }
+
+    public static void init(String path) {
+        LiDarDataBase.path = path;
     }
 
     public List<StampedCloudPoints> getCloudPoints() {

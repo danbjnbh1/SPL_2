@@ -72,7 +72,8 @@ public class GurionRockRunner {
                 cameraServices.add(cameraService);
             }
 
-            LiDarDataBase lidarDataBase = LiDarDataBase.getInstance(lidarDataPath);
+            LiDarDataBase.init(lidarDataPath);
+            LiDarDataBase lidarDataBase = LiDarDataBase.getInstance();
             List<MicroService> lidarServices = new ArrayList<>();
             for (LidarConfiguration lidarConfig : config.getLidars().getLidarConfigurations()) {
                 LiDarWorkerTracker lidar = new LiDarWorkerTracker(lidarConfig.getId(), lidarConfig.getFrequency(),
