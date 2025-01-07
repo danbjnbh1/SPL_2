@@ -14,7 +14,8 @@ public class LidarDataBaseTest {
     @BeforeAll
     public static void setUp() {
         // Initialize the LiDarDataBase instance with the path to the JSON file
-        lidarDataBase = LiDarDataBase.getInstance("src/test/resources/lidar_data.json");
+        LiDarDataBase.init("src/test/resources/lidar_data.json");
+        lidarDataBase = LiDarDataBase.getInstance();
     }
 
     @Test

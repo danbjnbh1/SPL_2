@@ -18,7 +18,8 @@ public class LiDarWorkerTrackerTest {
     @BeforeEach
     public void setUp() {
         // Initialize the LiDarDataBase instance with the path to the JSON file
-        dataBase = LiDarDataBase.getInstance("src/test/resources/lidar_data.json");
+        LiDarDataBase.init("src/test/resources/lidar_data.json");
+        dataBase = LiDarDataBase.getInstance();
         workerTracker = new LiDarWorkerTracker(1, 5, dataBase);
         workerTracker.getLastTrackedObjects().clear(); // Clear last tracked objects before each test
         dataBase.getNumOfConsumedCloudPoints().set(0); // Reset consumed cloud points before each test
