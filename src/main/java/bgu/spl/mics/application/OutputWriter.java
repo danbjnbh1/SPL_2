@@ -45,7 +45,7 @@ public class OutputWriter {
             // Write to JSON file
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             Path configAbsolutePath = Paths.get(configPath).toAbsolutePath().getParent();
-            Path outputPath = configAbsolutePath.resolve("error_output1.json");
+            Path outputPath = configAbsolutePath.resolve("OutputError.json");
 
             try (FileWriter writer = new FileWriter(outputPath.toFile())) {
                 gson.toJson(errorOutputData, writer);
@@ -65,7 +65,7 @@ public class OutputWriter {
             // Write to JSON file
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             Path configAbsolutePath = Paths.get(configPath).toAbsolutePath().getParent();
-            Path outputPath = configAbsolutePath.resolve("output_file1.json");
+            Path outputPath = configAbsolutePath.resolve("output_file.json");
 
             try (FileWriter writer = new FileWriter(outputPath.toFile())) {
                 gson.toJson(outputData, writer);
