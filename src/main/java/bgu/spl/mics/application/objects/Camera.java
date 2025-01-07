@@ -22,7 +22,7 @@ public class Camera {
         this.status = STATUS.UP;
         this.detectedObjectsList = dataBase.getCameraData(key);
         this.currentTime = 0;
-        this.name = "Camera" + id;
+        this.name = key;
     }
 
     public int getId() {

@@ -106,9 +106,9 @@
     }
   },
   "error": "Camera Disconnected",
-  "faultySensor": "Camera1",
+  "faultySensor": "camera1",
   "lastCamerasFrame": {
-    "Camera1": {
+    "camera1": {
       "detectedObjects": [
         {
           "id": "Wall_3",
